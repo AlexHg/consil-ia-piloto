@@ -1,18 +1,25 @@
 export type PoolResource = 'invoices' | 'payments' | 'notes'
 
+export type ImportFormat = 'csv' | 'json'
+
+interface SampleFile {
+  /** Nombre del archivo de ejemplo descargable. */
+  filename: string
+  /** Contenido de ejemplo (cabecera/array + filas guía). */
+  content: string
+}
+
 interface PoolMeta {
   /** Etiqueta singular del documento ("factura", "pago", "nota"). */
   singular: string
   /** Etiqueta plural usada en títulos. */
   plural: string
   icon: string
-  /** Endpoint de importación CSV. */
+  /** Endpoint de importación (acepta CSV o JSON). */
   importEndpoint: string
-  /** Nombre del archivo de ejemplo descargable. */
-  sampleFilename: string
-  /** Contenido CSV de ejemplo (cabecera + filas guía). */
-  sampleCsv: string
-  /** Columnas esperadas, para guiar al usuario. */
+  /** Ejemplos descargables por formato. */
+  samples: Record<ImportFormat, SampleFile>
+  /** Columnas/campos esperados, para guiar al usuario. */
   columns: string[]
   /** Claves de useFetch a refrescar tras una mutación. */
   refreshKeys: string[]
@@ -26,12 +33,23 @@ export const POOL_META: Record<PoolResource, PoolMeta> = {
     plural: 'Facturas',
     icon: 'i-lucide-file-text',
     importEndpoint: '/api/import/invoices',
-    sampleFilename: 'facturas-ejemplo.csv',
-    sampleCsv: [
-      'invoice_id,vendor,invoice_date,due_date,currency,amount,po_number,status',
-      'INV-2001,ACME Logistics,2026-06-01,2026-06-30,USD,1250.00,PO-9001,open',
-      'INV-2002,Grupo Norte SA,2026-06-03,2026-07-03,MXN,18500.00,PO-9002,open'
-    ].join('\n'),
+    samples: {
+      csv: {
+        filename: 'facturas-ejemplo.csv',
+        content: [
+          'invoice_id,vendor,invoice_date,due_date,currency,amount,po_number,status',
+          'INV-2001,ACME Logistics,2026-06-01,2026-06-30,USD,1250.00,PO-9001,open',
+          'INV-2002,Grupo Norte SA,2026-06-03,2026-07-03,MXN,18500.00,PO-9002,open'
+        ].join('\n')
+      },
+      json: {
+        filename: 'facturas-ejemplo.json',
+        content: JSON.stringify([
+          { id: 'INV-2001', vendor: 'ACME Logistics', invoiceDate: '2026-06-01', dueDate: '2026-06-30', currency: 'USD', amount: 1250.00, poNumber: 'PO-9001', status: 'open' },
+          { id: 'INV-2002', vendor: 'Grupo Norte SA', invoiceDate: '2026-06-03', dueDate: '2026-07-03', currency: 'MXN', amount: 18500.00, poNumber: 'PO-9002', status: 'open' }
+        ], null, 2)
+      }
+    },
     columns: ['invoice_id', 'vendor', 'invoice_date', 'due_date', 'currency', 'amount', 'po_number', 'status'],
     refreshKeys: ['pool-invoices', ...RECONCILIATION_KEYS]
   },
@@ -40,12 +58,23 @@ export const POOL_META: Record<PoolResource, PoolMeta> = {
     plural: 'Pagos',
     icon: 'i-lucide-banknote',
     importEndpoint: '/api/import/payments',
-    sampleFilename: 'pagos-ejemplo.csv',
-    sampleCsv: [
-      'payment_id,payment_date,payer_name,currency,amount,reference',
-      'PAY-2001,2026-06-05,ACME Logistics,USD,1250.00,Payment for INV-2001',
-      'PAY-2002,2026-06-07,Grupo Norte,MXN,18500.00,INV-2002'
-    ].join('\n'),
+    samples: {
+      csv: {
+        filename: 'pagos-ejemplo.csv',
+        content: [
+          'payment_id,payment_date,payer_name,currency,amount,reference',
+          'PAY-2001,2026-06-05,ACME Logistics,USD,1250.00,Payment for INV-2001',
+          'PAY-2002,2026-06-07,Grupo Norte,MXN,18500.00,INV-2002'
+        ].join('\n')
+      },
+      json: {
+        filename: 'pagos-ejemplo.json',
+        content: JSON.stringify([
+          { id: 'PAY-2001', paymentDate: '2026-06-05', payerName: 'ACME Logistics', currency: 'USD', amount: 1250.00, reference: 'Payment for INV-2001' },
+          { id: 'PAY-2002', paymentDate: '2026-06-07', payerName: 'Grupo Norte', currency: 'MXN', amount: 18500.00, reference: 'INV-2002' }
+        ], null, 2)
+      }
+    },
     columns: ['payment_id', 'payment_date', 'payer_name', 'currency', 'amount', 'reference'],
     refreshKeys: ['pool-payments', ...RECONCILIATION_KEYS]
   },
@@ -54,12 +83,23 @@ export const POOL_META: Record<PoolResource, PoolMeta> = {
     plural: 'Notas',
     icon: 'i-lucide-sticky-note',
     importEndpoint: '/api/import/notes',
-    sampleFilename: 'notas-ejemplo.csv',
-    sampleCsv: [
-      'source,text',
-      'email,ACME Logistics confirmó el pago de la factura INV-2001.',
-      'slack,Grupo Norte aplicará un descuento por pronto pago en INV-2002.'
-    ].join('\n'),
+    samples: {
+      csv: {
+        filename: 'notas-ejemplo.csv',
+        content: [
+          'source,text',
+          'email,ACME Logistics confirmó el pago de la factura INV-2001.',
+          'slack,Grupo Norte aplicará un descuento por pronto pago en INV-2002.'
+        ].join('\n')
+      },
+      json: {
+        filename: 'notas-ejemplo.json',
+        content: JSON.stringify([
+          { source: 'email', text: 'ACME Logistics confirmó el pago de la factura INV-2001.' },
+          { source: 'slack', text: 'Grupo Norte aplicará un descuento por pronto pago en INV-2002.' }
+        ], null, 2)
+      }
+    },
     columns: ['source', 'text'],
     refreshKeys: ['pool-notes', ...RECONCILIATION_KEYS]
   }

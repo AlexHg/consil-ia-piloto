@@ -28,7 +28,7 @@ const items = computed<DropdownMenuItem[]>(() => [
     onSelect: () => { createOpen.value = true }
   },
   {
-    label: 'Importar CSV',
+    label: 'Importación',
     icon: 'i-lucide-upload',
     onSelect: () => { importOpen.value = true }
   }
@@ -55,6 +55,6 @@ const items = computed<DropdownMenuItem[]>(() => [
     <PoolPaymentForm v-else-if="resource === 'payments'" v-model:open="createOpen" />
     <PoolNoteForm v-else-if="resource === 'notes'" v-model:open="createOpen" />
 
-    <PoolImportCsvModal :resource="resource" v-model:open="importOpen" />
+    <PoolImportModal :resource="resource" v-model:open="importOpen" />
   </div>
 </template>
