@@ -6,6 +6,7 @@ definePageMeta({
 useSeoMeta({ title: 'Pagos' })
 
 const { payments } = usePools()
+const { paymentStatus } = usePaymentStatuses()
 
 const {
   sortKey,
@@ -24,6 +25,12 @@ const {
     label: 'Por monto',
     icon: 'i-lucide-banknote',
     compare: (a, b) => a.amount - b.amount
+  },
+  {
+    value: 'status',
+    label: 'Por estado',
+    icon: 'i-lucide-link-2',
+    compare: (a, b) => paymentStatusRank(paymentStatus(a.id)) - paymentStatusRank(paymentStatus(b.id))
   }
 ], { key: 'date', direction: 'desc' })
 
@@ -62,6 +69,7 @@ const { page, pageSize, total, rangeStart, rangeEnd, paginated } = usePagination
             v-for="payment in paginated"
             :key="payment.id"
             :payment="payment"
+            :status="paymentStatus(payment.id)"
           />
         </div>
 

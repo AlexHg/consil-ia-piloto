@@ -9,6 +9,8 @@ useSeoMeta({ title: 'Dashboard' })
 
 const { invoices, payments, notes, summary, pending } = usePools()
 
+const { paymentStatus } = usePaymentStatuses()
+
 const { run: runReconciliation, running: reconciling } = useReconciliation()
 
 const { data: results } = useFetch<ReconciliationResult[]>('/api/reconciliation', {
@@ -150,7 +152,7 @@ const breakdown = computed(() => {
         <DashboardPoolSection title="Pool de Pagos" subtitle="Movimientos recibidos por conciliar"
           icon="i-lucide-banknote" color="secondary" to="/pagos" :items="payments" :loading="pending">
           <template #default="{ item }">
-            <DashboardPaymentCard :payment="item" />
+            <DashboardPaymentCard :payment="item" :status="paymentStatus(item.id)" />
           </template>
         </DashboardPoolSection>
 

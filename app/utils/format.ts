@@ -85,6 +85,52 @@ export function reconciliationRank(status?: ReconciliationStatus): number {
   return RECONCILIATION_ORDER[status] ?? 5
 }
 
+/**
+ * Estado de conciliación de un pago. Es un valor **derivado**: el pago hereda el
+ * estado de la conciliación (de factura) que lo vincula. `Unmatched` significa
+ * que, tras una corrida, ningún match lo incluyó → pago huérfano (dinero recibido
+ * sin factura asociada). El motor sigue siendo invoice-centric; aquí solo se proyecta.
+ */
+export function paymentStatusLabel(status: ReconciliationStatus): string {
+  switch (status) {
+    case 'Matched':
+      return 'Aplicado'
+    case 'Partial Match':
+      return 'Parcial'
+    case 'Needs Review':
+      return 'Revisión'
+    case 'Suspicious':
+      return 'Sospechoso'
+    case 'Unmatched':
+    default:
+      return 'Huérfano'
+  }
+}
+
+export function paymentStatusColor(status: ReconciliationStatus): UiColor {
+  // Un pago huérfano (recibido sin factura asociada) merece atención, no es neutro.
+  if (status === 'Unmatched') return 'warning'
+  return reconciliationColor(status)
+}
+
+/**
+ * Prioridad de orden por estado del pago: primero lo que exige atención
+ * (Sospechoso, Huérfano, Revisión), luego parcial y aplicado. Pagos sin estado
+ * (aún sin corrida) al final.
+ */
+const PAYMENT_STATUS_ORDER: Record<ReconciliationStatus, number> = {
+  'Suspicious': 0,
+  'Unmatched': 1,
+  'Needs Review': 2,
+  'Partial Match': 3,
+  'Matched': 4
+}
+
+export function paymentStatusRank(status?: ReconciliationStatus): number {
+  if (!status) return 5
+  return PAYMENT_STATUS_ORDER[status] ?? 5
+}
+
 const NOTE_SOURCE_META: Record<string, { label: string, icon: string }> = {
   email: { label: 'Email', icon: 'i-lucide-mail' },
   slack: { label: 'Slack', icon: 'i-lucide-message-square' },
