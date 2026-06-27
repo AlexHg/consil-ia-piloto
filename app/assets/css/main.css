@@ -1,18 +1,38 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+/*
+ * Estilo enterprise premium (Stripe / Linear / Ramp / Mercury).
+ * Paleta tomada de la lámina de componentes: acento índigo periwinkle,
+ * verde para estados positivos, ámbar para pendientes, rosa/rojo para errores
+ * y fondo gris frío con cards blancos.
+ */
 @theme static {
-  --font-sans: 'Public Sans', sans-serif;
+  /* Acento de marca / primario: índigo periwinkle (#4F67F0) */
+  --color-brand-50: #EEF1FE;
+  --color-brand-100: #E0E5FD;
+  --color-brand-200: #C7CFFB;
+  --color-brand-300: #A3AFF7;
+  --color-brand-400: #7C8BF3;
+  --color-brand-500: #4F67F0;
+  --color-brand-600: #3D52E0;
+  --color-brand-700: #3343C0;
+  --color-brand-800: #2C399B;
+  --color-brand-900: #28347B;
+  --color-brand-950: #1B2150;
+}
 
-  --color-green-50: #EFFDF5;
-  --color-green-100: #D9FBE8;
-  --color-green-200: #B3F5D1;
-  --color-green-300: #75EDAE;
-  --color-green-400: #00DC82;
-  --color-green-500: #00C16A;
-  --color-green-600: #00A155;
-  --color-green-700: #007F45;
-  --color-green-800: #016538;
-  --color-green-900: #0A5331;
-  --color-green-950: #052E16;
+:root {
+  --ui-radius: 0.75rem;
+}
+
+/* Fondo gris frío; los cards permanecen en blanco (bg-default). */
+.light {
+  --ui-bg-muted: #F4F5F8;
+  --ui-bg-elevated: #EBEDF2;
+}
+
+body {
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
 }
