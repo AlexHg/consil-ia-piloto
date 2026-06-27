@@ -92,8 +92,11 @@ export function paymentToRow(payment: Payment, source = 'manual'): Insertable<Pa
 // --- Note -------------------------------------------------------------------
 export function noteFromRow(row: Selectable<NotesTable>): OperationalNote {
   return {
+    id: row.id,
     source: row.source,
-    text: row.text
+    text: row.text,
+    interpretedSummary: row.interpreted_summary,
+    referencedIds: row.referenced_ids
   }
 }
 

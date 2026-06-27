@@ -28,19 +28,30 @@ export interface Payment {
 }
 
 export interface OperationalNote {
-  source: string
-  text: string
+  /**
+   * Identificador de la fila en la tabla `notes`. El dominio puro no lo necesita
+   * para conciliar, pero la UI sí lo usa para direccionar la nota (detalle,
+   * borrado) y el enriquecimiento para actualizarla. Opcional: al crear una nota
+   * todavía no existe.
+   */
+  id?: string;
+  source: string;
+  text: string;
+  /** Resumen generado por la IA al interpretar la nota (null si aún no se interpretó). */
+  interpretedSummary?: string | null;
+  /** IDs de facturas/pagos que la IA detectó referenciados en el texto. */
+  referencedIds?: string[] | null;
 }
 
 /**
  * Estados posibles que produce el motor determinístico de conciliación.
  */
 export type ReconciliationStatus =
-  | 'Matched'
-  | 'Partial Match'
-  | 'Needs Review'
-  | 'Unmatched'
-  | 'Suspicious'
+  | "Matched"
+  | "Partial Match"
+  | "Needs Review"
+  | "Unmatched"
+  | "Suspicious";
 
 /**
  * Señal individual que aporta evidencia a una conciliación.

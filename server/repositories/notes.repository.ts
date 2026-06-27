@@ -1,8 +1,10 @@
 /**
  * Repositorio de notas operativas (Notes Pool).
  *
- * El dominio (`OperationalNote`) no expone `id`; la tabla sí lo genera. Hacia
- * arriba se devuelven solo `source` y `text`.
+ * `listNotes` devuelve la nota completa (incluido `id` y la interpretación de
+ * IA) para que la UI pueda mostrar el detalle y borrarla. `insertNote` /
+ * `noteToRow` solo persisten `source` y `text`; el resto lo completa el
+ * enriquecimiento.
  */
 
 import { sql } from 'kysely'
@@ -45,6 +47,14 @@ export async function bulkInsertNotes(items: OperationalNote[]): Promise<Operati
     .returningAll()
     .execute()
   return rows.map(noteFromRow)
+}
+
+export async function deleteNote(id: string): Promise<boolean> {
+  const result = await useDb()
+    .deleteFrom('notes')
+    .where('id', '=', id)
+    .executeTakeFirst()
+  return Number(result.numDeletedRows ?? 0) > 0
 }
 
 /** Notas sin embedding, con su `id` para poder actualizarlas. */

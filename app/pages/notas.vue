@@ -62,7 +62,7 @@ const { page, pageSize, total, rangeStart, rangeEnd, paginated } = usePagination
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           <DashboardNoteCard
             v-for="(note, index) in paginated"
-            :key="`${note.source}-${index}`"
+            :key="note.id ?? `${note.source}-${index}`"
             :note="note"
           />
         </div>
