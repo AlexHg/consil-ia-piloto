@@ -10,7 +10,7 @@ defineProps<{
 const page = defineModel<number>('page', { required: true })
 const pageSize = defineModel<number>('pageSize', { required: true })
 
-const pageSizeItems = PAGE_SIZE_OPTIONS.map(value => ({ label: `${value} por página`, value }))
+const pageSizeItems = PAGE_SIZE_OPTIONS.map(value => ({ label: `${value} por página`, value: value as number }))
 </script>
 
 <template>
