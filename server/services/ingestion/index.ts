@@ -1,6 +1,21 @@
 import { parseCsv } from '../../utils/csv'
-import { getStore, normalizeInvoiceRow, normalizePaymentRow } from './store'
-import type { Invoice, Payment, OperationalNote } from '~~/shared/types/domain'
+import { clean, nextId, normalizeInvoiceRow, normalizePaymentRow, toNumber } from './normalize'
+import {
+  bulkInsertInvoices,
+  insertInvoice,
+  listInvoices
+} from '../../repositories/invoices.repository'
+import {
+  bulkInsertPayments,
+  insertPayment,
+  listPayments
+} from '../../repositories/payments.repository'
+import {
+  bulkInsertNotes,
+  insertNote,
+  listNotes
+} from '../../repositories/notes.repository'
+import type { Invoice, OperationalNote, Payment } from '~~/shared/types/domain'
 
 /**
  * Capa de ingesta.
@@ -9,8 +24,8 @@ import type { Invoice, Payment, OperationalNote } from '~~/shared/types/domain'
  * entidades del dominio. El resto del sistema (motor de conciliación, UI) nunca
  * conoce el origen ni el formato crudo de la información.
  *
- * La persistencia vive en `store.ts` (hoy en memoria, mañana PostgreSQL +
- * pgvector). Las lecturas y escrituras pasan siempre por aquí.
+ * La persistencia vive en los repositorios (PostgreSQL + pgvector vía Kysely).
+ * Las lecturas y escrituras pasan siempre por aquí.
  */
 
 export interface ImportResult<T> {
@@ -20,102 +35,74 @@ export interface ImportResult<T> {
 
 // --- Lecturas ---------------------------------------------------------------
 
-export async function loadInvoices(): Promise<Invoice[]> {
-  return (await getStore()).invoices
+export function loadInvoices(): Promise<Invoice[]> {
+  return listInvoices()
 }
 
-export async function loadPayments(): Promise<Payment[]> {
-  return (await getStore()).payments
+export function loadPayments(): Promise<Payment[]> {
+  return listPayments()
 }
 
-export async function loadNotes(): Promise<OperationalNote[]> {
-  return (await getStore()).notes
-}
-
-// --- Utilidades de normalización -------------------------------------------
-
-function nextId(prefix: string, existing: { id: string }[]): string {
-  const max = existing.reduce((acc, item) => {
-    const match = /(\d+)\s*$/.exec(item.id)
-    const value = match ? Number.parseInt(match[1]!, 10) : 0
-    return Number.isFinite(value) ? Math.max(acc, value) : acc
-  }, 0)
-  return `${prefix}-${max + 1}`
-}
-
-function toAmount(value: number | string | undefined): number {
-  if (typeof value === 'number') return Number.isFinite(value) ? value : 0
-  const parsed = Number.parseFloat(String(value ?? '').replace(/[^0-9.-]/g, ''))
-  return Number.isFinite(parsed) ? parsed : 0
-}
-
-function clean(value: unknown): string {
-  return typeof value === 'string' ? value.trim() : ''
+export function loadNotes(): Promise<OperationalNote[]> {
+  return listNotes()
 }
 
 // --- Altas individuales (formulario) ----------------------------------------
 
 export async function createInvoice(input: Partial<Invoice>): Promise<Invoice> {
-  const store = await getStore()
+  const existing = await listInvoices()
   const invoice: Invoice = {
-    id: clean(input.id) || nextId('INV', store.invoices),
+    id: clean(input.id) || nextId('INV', existing.map(i => i.id)),
     vendor: clean(input.vendor),
     invoiceDate: clean(input.invoiceDate),
     dueDate: clean(input.dueDate),
     currency: clean(input.currency) || 'USD',
-    amount: toAmount(input.amount),
+    amount: toNumber(input.amount),
     poNumber: clean(input.poNumber) || null,
     status: clean(input.status) || 'open'
   }
-  store.invoices.push(invoice)
-  return invoice
+  return insertInvoice(invoice, 'manual')
 }
 
 export async function createPayment(input: Partial<Payment>): Promise<Payment> {
-  const store = await getStore()
+  const existing = await listPayments()
   const payment: Payment = {
-    id: clean(input.id) || nextId('PAY', store.payments),
+    id: clean(input.id) || nextId('PAY', existing.map(p => p.id)),
     paymentDate: clean(input.paymentDate),
     payerName: clean(input.payerName),
     currency: clean(input.currency) || 'USD',
-    amount: toAmount(input.amount),
+    amount: toNumber(input.amount),
     reference: clean(input.reference) || null
   }
-  store.payments.push(payment)
-  return payment
+  return insertPayment(payment, 'manual')
 }
 
 export async function createNote(input: Partial<OperationalNote>): Promise<OperationalNote> {
-  const store = await getStore()
   const note: OperationalNote = {
     source: clean(input.source) || 'unknown',
     text: clean(input.text)
   }
-  store.notes.push(note)
-  return note
+  return insertNote(note)
 }
 
 // --- Importación CSV --------------------------------------------------------
 
 export async function importInvoicesCsv(csv: string): Promise<ImportResult<Invoice>> {
-  const store = await getStore()
   const items = parseCsv(csv).map(normalizeInvoiceRow).filter(invoice => invoice.id || invoice.vendor)
-  store.invoices.push(...items)
-  return { created: items.length, items }
+  const created = await bulkInsertInvoices(items, 'csv')
+  return { created: created.length, items: created }
 }
 
 export async function importPaymentsCsv(csv: string): Promise<ImportResult<Payment>> {
-  const store = await getStore()
   const items = parseCsv(csv).map(normalizePaymentRow).filter(payment => payment.id || payment.payerName)
-  store.payments.push(...items)
-  return { created: items.length, items }
+  const created = await bulkInsertPayments(items, 'csv')
+  return { created: created.length, items: created }
 }
 
 export async function importNotesCsv(csv: string): Promise<ImportResult<OperationalNote>> {
-  const store = await getStore()
   const items = parseCsv(csv)
     .map(row => ({ source: clean(row.source) || 'unknown', text: clean(row.text) }))
     .filter(note => note.text)
-  store.notes.push(...items)
-  return { created: items.length, items }
+  const created = await bulkInsertNotes(items)
+  return { created: created.length, items: created }
 }
