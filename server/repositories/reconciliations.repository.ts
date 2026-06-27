@@ -10,10 +10,23 @@
  */
 
 import type { Selectable } from 'kysely'
+import { sql } from 'kysely'
 import { useDb } from '../db/client'
 import type { ReconciliationsTable } from '../db/types'
-import type { ReconciliationResult } from '~~/shared/types/domain'
+import type {
+  ReconciliationResult,
+  ReconciliationReviewInput,
+  ReconciliationReviewResult,
+  ReconciliationStatus,
+  ReviewAction
+} from '~~/shared/types/domain'
 import { reconciliationFromRow, toMoney } from './mappers'
+
+/** Estado resultante de cada acción humana. El motor nunca cambia tras decidir. */
+const REVIEW_NEW_STATUS: Record<ReviewAction, ReconciliationStatus> = {
+  accept: 'Matched',
+  correct: 'Needs Review'
+}
 
 export async function createRun(trigger = 'manual', invoicesCount?: number): Promise<string> {
   const run = await useDb()
@@ -139,6 +152,66 @@ export async function listReconciliations(): Promise<ReconciliationResult[]> {
     .orderBy('created_at', 'desc')
     .execute()
   return attachPayments(rows)
+}
+
+/**
+ * Registra la decisión humana sobre la conciliación más reciente de una factura.
+ *
+ * En una sola transacción: actualiza el estado de la conciliación según la acción
+ * (`accept` → Matched, `correct` → Needs Review) y deja constancia en el audit
+ * trail append-only (`reconciliation_reviews`). Lanza si la factura no tiene
+ * ninguna conciliación previa.
+ */
+export async function reviewLatestReconciliation(
+  invoiceId: string,
+  input: ReconciliationReviewInput,
+  actor: string
+): Promise<ReconciliationReviewResult> {
+  const newStatus = REVIEW_NEW_STATUS[input.action]
+
+  return useDb().transaction().execute(async (trx) => {
+    const target = await trx
+      .selectFrom('reconciliations')
+      .select(['id', 'status'])
+      .where('invoice_id', '=', invoiceId)
+      .orderBy('created_at', 'desc')
+      .executeTakeFirst()
+
+    if (!target) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: `No existe una conciliación para la factura ${invoiceId}.`
+      })
+    }
+
+    const previousStatus = target.status as ReconciliationStatus
+
+    await trx
+      .updateTable('reconciliations')
+      .set({ status: newStatus, updated_at: sql`now()` })
+      .where('id', '=', target.id)
+      .execute()
+
+    await trx
+      .insertInto('reconciliation_reviews')
+      .values({
+        reconciliation_id: target.id,
+        action: input.action,
+        actor,
+        previous_status: previousStatus,
+        new_status: newStatus,
+        comment: input.comment?.trim() || null
+      })
+      .execute()
+
+    return {
+      reconciliationId: target.id,
+      invoiceId,
+      action: input.action,
+      previousStatus,
+      newStatus
+    }
+  })
 }
 
 export async function findReconciliationsByInvoice(invoiceId: string): Promise<ReconciliationResult[]> {

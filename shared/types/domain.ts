@@ -69,6 +69,30 @@ export interface ReconciliationResult {
 }
 
 /**
+ * Decisión humana sobre una conciliación (revisión).
+ *
+ * El motor decide de forma determinística; el revisor solo confirma (`accept`)
+ * o devuelve a revisión manual (`correct`). Cada decisión se registra en el
+ * audit trail (`reconciliation_reviews`) — la IA nunca decide.
+ */
+export type ReviewAction = 'accept' | 'correct'
+
+/** Payload que envía la UI al revisar una conciliación. */
+export interface ReconciliationReviewInput {
+  action: ReviewAction
+  comment?: string
+}
+
+/** Resultado de aplicar una revisión: incluye el cambio de estado auditado. */
+export interface ReconciliationReviewResult {
+  reconciliationId: string
+  invoiceId: string
+  action: ReviewAction
+  previousStatus: ReconciliationStatus
+  newStatus: ReconciliationStatus
+}
+
+/**
  * Estado de la ejecución más reciente del motor de conciliación.
  *
  * La conciliación se procesa de forma asíncrona (cola pg-boss), por lo que la UI

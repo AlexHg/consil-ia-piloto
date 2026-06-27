@@ -1,5 +1,10 @@
-import type { ReconciliationRunStatus } from '~~/shared/types/domain'
+import type {
+  ReconciliationReviewInput,
+  ReconciliationReviewResult,
+  ReconciliationRunStatus
+} from '~~/shared/types/domain'
 import { extractErrorMessage } from '~/utils/pools'
+import { reconciliationLabel } from '~/utils/format'
 
 /**
  * Orquesta la ejecución del pipeline de conciliación desde la UI.
@@ -44,6 +49,7 @@ async function waitForNewRun(before: ReconciliationRunStatus): Promise<Reconcili
 export function useReconciliation() {
   const toast = useToast()
   const running = ref(false)
+  const reviewingId = ref<string | null>(null)
 
   async function run(): Promise<void> {
     if (running.value) return
@@ -92,5 +98,43 @@ export function useReconciliation() {
     }
   }
 
-  return { running, run }
+  /**
+   * Registra la decisión humana (aceptar/corregir) sobre la conciliación de una
+   * factura y refresca el dashboard. La decisión la toma el revisor; el backend
+   * solo persiste el cambio de estado de forma auditable.
+   */
+  async function review(invoiceId: string, input: ReconciliationReviewInput): Promise<boolean> {
+    if (reviewingId.value) return false
+    reviewingId.value = invoiceId
+
+    try {
+      const result = await $fetch<ReconciliationReviewResult>(
+        `/api/reconciliation/${encodeURIComponent(invoiceId)}/review`,
+        { method: 'POST', body: input }
+      )
+
+      await refreshNuxtData(REFRESH_KEYS)
+
+      toast.add({
+        title: input.action === 'accept' ? 'Conciliación aceptada' : 'Enviada a revisión',
+        description: `${invoiceId} ahora está en estado "${reconciliationLabel(result.newStatus)}".`,
+        color: 'success',
+        icon: input.action === 'accept' ? 'i-lucide-check' : 'i-lucide-pencil'
+      })
+
+      return true
+    } catch (error) {
+      toast.add({
+        title: 'No se pudo registrar la decisión',
+        description: extractErrorMessage(error),
+        color: 'error',
+        icon: 'i-lucide-x'
+      })
+      return false
+    } finally {
+      reviewingId.value = null
+    }
+  }
+
+  return { running, run, review, reviewingId }
 }

@@ -8,11 +8,31 @@ definePageMeta({
 useSeoMeta({ title: 'Conciliados' })
 
 const { invoices } = usePools()
+const { run, running, review, reviewingId } = useReconciliation()
 
 const { data: results, pending } = useFetch<ReconciliationResult[]>('/api/reconciliation', {
   key: 'reconciliation-results',
   default: () => []
 })
+
+const correctOpen = ref(false)
+const correctTarget = ref<string | null>(null)
+const correctComment = ref('')
+
+function openCorrect(invoiceId: string) {
+  correctTarget.value = invoiceId
+  correctComment.value = ''
+  correctOpen.value = true
+}
+
+async function submitCorrect() {
+  if (!correctTarget.value || !correctComment.value.trim()) return
+  const ok = await review(correctTarget.value, {
+    action: 'correct',
+    comment: correctComment.value
+  })
+  if (ok) correctOpen.value = false
+}
 
 const invoiceById = computed(() => {
   const map = new Map<string, Invoice>()
@@ -38,7 +58,14 @@ const rows = computed(() =>
           <UDashboardSidebarCollapse />
         </template>
         <template #right>
-          <UButton icon="i-lucide-refresh-cw" label="Re-ejecutar" color="primary" size="sm" />
+          <UButton
+            icon="i-lucide-refresh-cw"
+            label="Re-ejecutar"
+            color="primary"
+            size="sm"
+            :loading="running"
+            @click="run()"
+          />
           <UColorModeButton />
         </template>
       </UDashboardNavbar>
@@ -119,10 +146,59 @@ const rows = computed(() =>
           </div>
 
           <div v-if="result.status !== 'Matched'" class="flex items-center gap-2">
-            <UButton label="Aceptar" color="primary" size="sm" icon="i-lucide-check" />
-            <UButton label="Corregir" color="neutral" variant="outline" size="sm" icon="i-lucide-pencil" />
+            <UButton
+              label="Aceptar"
+              color="primary"
+              size="sm"
+              icon="i-lucide-check"
+              :loading="reviewingId === result.invoiceId"
+              :disabled="reviewingId !== null"
+              @click="review(result.invoiceId, { action: 'accept' })"
+            />
+            <UButton
+              label="Corregir"
+              color="neutral"
+              variant="outline"
+              size="sm"
+              icon="i-lucide-pencil"
+              :disabled="reviewingId !== null"
+              @click="openCorrect(result.invoiceId)"
+            />
           </div>
         </article>
+
+        <UModal
+          v-model:open="correctOpen"
+          title="Corregir conciliación"
+          :description="`Devuelve ${correctTarget} a revisión manual y registra el motivo en la auditoría.`"
+          :ui="{ content: 'max-w-xl' }"
+        >
+          <template #body>
+            <UFormField label="Motivo de la corrección" name="comment" required>
+              <UTextarea
+                v-model="correctComment"
+                :rows="4"
+                autoresize
+                placeholder="Ej. La moneda del pago no coincide con la factura; requiere validación manual."
+                class="w-full"
+              />
+            </UFormField>
+          </template>
+
+          <template #footer>
+            <div class="flex items-center justify-end gap-2 w-full">
+              <UButton label="Cancelar" color="neutral" variant="ghost" @click="correctOpen = false" />
+              <UButton
+                label="Enviar a revisión"
+                icon="i-lucide-pencil"
+                color="primary"
+                :loading="reviewingId === correctTarget"
+                :disabled="!correctComment.trim()"
+                @click="submitCorrect()"
+              />
+            </div>
+          </template>
+        </UModal>
       </div>
     </template>
   </UDashboardPanel>
