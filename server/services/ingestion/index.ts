@@ -1,5 +1,12 @@
 import { parseCsv } from '../../utils/csv'
-import { clean, nextId, normalizeInvoiceRow, normalizePaymentRow, toNumber } from './normalize'
+import {
+  clean,
+  nextId,
+  normalizeInvoiceRow,
+  normalizeNoteRow,
+  normalizePaymentRow,
+  toNumber
+} from './normalize'
 import {
   bulkInsertInvoices,
   insertInvoice,
@@ -31,6 +38,45 @@ import type { Invoice, OperationalNote, Payment } from '~~/shared/types/domain'
 export interface ImportResult<T> {
   created: number
   items: T[]
+}
+
+/**
+ * Contenido a importar. Una fuente puede llegar como CSV o como JSON; el resto
+ * del sistema solo verá entidades de dominio ya normalizadas.
+ */
+export interface ImportBody {
+  csv?: string
+  json?: string
+}
+
+type ImportFormat = 'csv' | 'json'
+
+/**
+ * Convierte el cuerpo de importación (CSV o JSON) en filas genéricas listas
+ * para normalizar. Soporta JSON como array de objetos o como un único objeto.
+ */
+function readRows(body: ImportBody): { rows: Record<string, unknown>[], format: ImportFormat } {
+  if (body?.json && body.json.trim()) {
+    return { rows: parseJsonRows(body.json), format: 'json' }
+  }
+  if (body?.csv && body.csv.trim()) {
+    return { rows: parseCsv(body.csv), format: 'csv' }
+  }
+  throw createError({ statusCode: 422, statusMessage: 'El contenido a importar está vacío.' })
+}
+
+function parseJsonRows(json: string): Record<string, unknown>[] {
+  let data: unknown
+  try {
+    data = JSON.parse(json)
+  } catch {
+    throw createError({ statusCode: 422, statusMessage: 'El contenido JSON no es válido.' })
+  }
+  const list = Array.isArray(data) ? data : [data]
+  return list.filter(
+    (row): row is Record<string, unknown> =>
+      typeof row === 'object' && row !== null && !Array.isArray(row)
+  )
 }
 
 // --- Lecturas ---------------------------------------------------------------
@@ -85,24 +131,25 @@ export async function createNote(input: Partial<OperationalNote>): Promise<Opera
   return insertNote(note)
 }
 
-// --- Importación CSV --------------------------------------------------------
+// --- Importación por archivo (CSV o JSON) -----------------------------------
 
-export async function importInvoicesCsv(csv: string): Promise<ImportResult<Invoice>> {
-  const items = parseCsv(csv).map(normalizeInvoiceRow).filter(invoice => invoice.id || invoice.vendor)
-  const created = await bulkInsertInvoices(items, 'csv')
+export async function importInvoices(body: ImportBody): Promise<ImportResult<Invoice>> {
+  const { rows, format } = readRows(body)
+  const items = rows.map(normalizeInvoiceRow).filter(invoice => invoice.id || invoice.vendor)
+  const created = await bulkInsertInvoices(items, format)
   return { created: created.length, items: created }
 }
 
-export async function importPaymentsCsv(csv: string): Promise<ImportResult<Payment>> {
-  const items = parseCsv(csv).map(normalizePaymentRow).filter(payment => payment.id || payment.payerName)
-  const created = await bulkInsertPayments(items, 'csv')
+export async function importPayments(body: ImportBody): Promise<ImportResult<Payment>> {
+  const { rows, format } = readRows(body)
+  const items = rows.map(normalizePaymentRow).filter(payment => payment.id || payment.payerName)
+  const created = await bulkInsertPayments(items, format)
   return { created: created.length, items: created }
 }
 
-export async function importNotesCsv(csv: string): Promise<ImportResult<OperationalNote>> {
-  const items = parseCsv(csv)
-    .map(row => ({ source: clean(row.source) || 'unknown', text: clean(row.text) }))
-    .filter(note => note.text)
+export async function importNotes(body: ImportBody): Promise<ImportResult<OperationalNote>> {
+  const { rows } = readRows(body)
+  const items = rows.map(normalizeNoteRow).filter(note => note.text)
   const created = await bulkInsertNotes(items)
   return { created: created.length, items: created }
 }
