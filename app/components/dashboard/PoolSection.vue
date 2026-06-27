@@ -64,12 +64,13 @@ const colorClasses: Record<UiColor, string> = {
       class="flex items-center justify-center h-36 rounded-md ring-1 ring-dashed ring-default text-sm text-muted">
       {{ emptyLabel }}
     </div>
-    <UCarousel v-else v-slot="{ item }" :items="(items as CarouselItem[])" wheel-gestures drag-free contain-scroll="trimSnaps" :ui="{
+    <UCarousel v-slot="{ item }" :items="(items as CarouselItem[])" wheel-gestures drag-free contain-scroll="trimSnaps"
+      :ui="{
       viewport: 'overflow-hidden',
       container: '-ms-4',
       item: 'ps-4 basis-[300px] sm:basis-[330px]'
     }">
-      <div class="h-full">
+      <div class="h-full my-2">
         <slot :item="(item as T)" />
       </div>
     </UCarousel>
