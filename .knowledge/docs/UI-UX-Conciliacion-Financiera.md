@@ -40,35 +40,46 @@ El usuario nunca debe sentirse saturado.
 
 # Estilo Visual
 
-## Colores
+Paleta tomada de la lámina `components.jpeg` (acento índigo, verde en positivos,
+píldoras ámbar/rosa, fondo gris frío con cards blancas).
 
 **Base**
 
--   Fondo: `#FAFAFA`
+-   Fondo: gris frío `#F4F5F8` (paneles/contenido)
 -   Cards: Blanco puro
 -   Bordes: Gris muy claro
 -   Sombras: Muy suaves y amplias
 
 **Color primario**
 
-Verde esmeralda / Teal
+Índigo periwinkle `#4F67F0` (la card destacada tipo "Pay Now").
 
-Usarlo únicamente para:
+Es la **identidad de marca y la acción**. Usarlo para:
 
--   Estados correctos
--   Progreso
 -   Acciones principales
+-   Foco / selección
+-   Marca
+-   Métrica de IA (conciliación automática)
+
+**Éxito (verde esmeralda)**
+
+Reservado para lo positivo:
+
 -   Conciliaciones exitosas
+-   Progreso
+-   Valores positivos
 
-**Color secundario**
-
-Ámbar para:
+**Pendiente (ámbar)**
 
 -   Pendientes
 -   Revisión manual
 -   Sugerencias de IA
 
-**Rojo**
+**Apoyo (azul cielo)**
+
+-   Acento del pool de pagos / elementos de soporte
+
+**Error (rojo / rosa)**
 
 Solo errores reales.
 

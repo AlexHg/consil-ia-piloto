@@ -17,8 +17,8 @@ Nuxt + Tailwind + Nuxt UI. Para componentes Nuxt UI consulta el MCP `user-nuxt-u
 
 Lee estas imágenes con la herramienta Read al iniciar trabajo visual:
 
-- `.knowledge/inspiration/look-and-feel.jpeg` — look & feel global: dashboard verde/teal, sidebar limpia, gráficos suaves, cards con mucho aire.
-- `.knowledge/inspiration/components.jpeg` — biblioteca de componentes: cards de balance, listas de transacciones, badges de estado, tarjetas con KPIs.
+- `.knowledge/inspiration/look-and-feel.jpeg` — look & feel global: sidebar limpia, gráficos suaves, cards con mucho aire.
+- `.knowledge/inspiration/components.jpeg` — **fuente de la paleta**: acento índigo periwinkle (card destacada tipo "Pay Now"), verde en estados positivos, píldoras de estado ámbar/rosa, fondo gris frío, cards blancas.
 
 Especificación completa en `.knowledge/docs/UI-UX-Conciliacion-Financiera.md`.
 
@@ -33,17 +33,23 @@ Especificación completa en `.knowledge/docs/UI-UX-Conciliacion-Financiera.md`.
 
 ### Color
 
-| Rol | Valor | Uso |
-|-----|-------|-----|
-| Fondo | `#FAFAFA` | Fondo de app |
-| Cards | Blanco puro | Superficies |
-| Bordes | Gris muy claro | Separadores |
-| Sombras | Suaves y amplias | Elevación ligera |
-| Primario | Verde esmeralda / Teal | Estados correctos, progreso, acciones principales, conciliaciones exitosas |
-| Secundario | Ámbar | Pendientes, revisión manual, sugerencias de IA |
-| Error | Rojo | **Solo errores reales**, nunca decorativo |
+Paleta tomada de `components.jpeg`. Implementada en Nuxt UI como alias semánticos (ver `app/app.config.ts` + `app/assets/css/main.css`).
 
-Prioriza tamaño, peso y espacio **antes** que color.
+| Rol | Alias Nuxt UI | Valor | Uso |
+|-----|---------------|-------|-----|
+| Fondo | `bg-muted` | `#F4F5F8` (gris frío) | Fondo de paneles / contenido |
+| Cards | `bg-default` | Blanco puro | Superficies |
+| Bordes | `ring-default` | Gris muy claro | Separadores |
+| Sombras | — | Suaves y amplias | Elevación ligera |
+| **Primario** | `primary` → `brand` | Índigo periwinkle `#4F67F0` | Marca, acciones principales, foco, métrica de IA |
+| Éxito | `success` → `emerald` | Verde esmeralda | Conciliado, progreso, valores positivos |
+| Pendiente | `warning` → `amber` | Ámbar | Pendientes, revisión manual, sugerencias de IA |
+| Secundario | `secondary` → `sky` | Azul cielo | Acento de pagos / apoyo |
+| Error | `error` → `rose` | Rojo/Rosa | **Solo errores reales**, nunca decorativo |
+| Procesando | `info` → `blue` | Azul | Estado en proceso |
+| Neutral | `neutral` → `slate` | Gris frío | Texto, superficies neutras |
+
+El índigo es **identidad de marca y acción**; el verde se reserva para "conciliado / positivo". Prioriza tamaño, peso y espacio **antes** que color.
 
 ### Tipografía
 
@@ -124,8 +130,8 @@ Tres zonas independientes (Estado Bancario · ERP · Facturas), cada una con dra
 ## Checklist antes de entregar UI
 
 - [ ] Leíste las dos imágenes de `.knowledge/inspiration/`
-- [ ] Fondo `#FAFAFA`, cards blancas, bordes gris claro, sombras suaves
-- [ ] Verde/teal solo para éxito/acción; ámbar para pendiente/IA; rojo solo errores
+- [ ] Fondo gris frío (`bg-muted`), cards blancas (`bg-default`), bordes gris claro, sombras suaves
+- [ ] Índigo (`primary`) para marca/acción/foco; verde (`success`) para conciliado/positivo; ámbar (`warning`) pendiente/IA; rosa/rojo (`error`) solo errores
 - [ ] Radius 20–24px, padding 24–32px, mucho espacio en blanco
 - [ ] Cards en lugar de tablas; un solo foco por pantalla
 - [ ] Iconos Lucide outline
