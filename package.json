@@ -8,19 +8,27 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
-    "typecheck": "nuxt typecheck"
+    "typecheck": "nuxt typecheck",
+    "db:migrate": "tsx server/db/migrate.ts",
+    "db:migrate:down": "tsx server/db/migrate.ts down",
+    "db:seed": "tsx server/db/seed.ts"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.114",
     "@iconify-json/simple-icons": "^1.2.86",
     "@nuxt/ui": "^4.9.0",
+    "kysely": "^0.29.2",
     "nuxt": "^4.4.8",
+    "pg": "^8.22.0",
+    "pg-boss": "^12.23.0",
     "tailwindcss": "^4.3.1"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.16.0",
     "@types/node": "^26.0.1",
+    "@types/pg": "^8.20.0",
     "eslint": "^10.5.0",
+    "tsx": "^4.22.4",
     "typescript": "^6.0.3",
     "vue-tsc": "^3.3.5"
   },
