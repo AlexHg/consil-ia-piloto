@@ -9,16 +9,19 @@ import {
 } from './normalize'
 import {
   bulkInsertInvoices,
+  deleteInvoice,
   insertInvoice,
   listInvoices
 } from '../../repositories/invoices.repository'
 import {
   bulkInsertPayments,
+  deletePayment,
   insertPayment,
   listPayments
 } from '../../repositories/payments.repository'
 import {
   bulkInsertNotes,
+  deleteNote,
   insertNote,
   listNotes
 } from '../../repositories/notes.repository'
@@ -129,6 +132,25 @@ export async function createNote(input: Partial<OperationalNote>): Promise<Opera
     text: clean(input.text)
   }
   return insertNote(note)
+}
+
+// --- Bajas -------------------------------------------------------------------
+
+/**
+ * Elimina una entidad de su pool. Las conciliaciones asociadas se limpian en
+ * cascada a nivel de base de datos (FK `ON DELETE CASCADE`); el motor seguirá
+ * siendo coherente en la próxima corrida. Devuelve `false` si no existía.
+ */
+export function removeInvoice(id: string): Promise<boolean> {
+  return deleteInvoice(id)
+}
+
+export function removePayment(id: string): Promise<boolean> {
+  return deletePayment(id)
+}
+
+export function removeNote(id: string): Promise<boolean> {
+  return deleteNote(id)
 }
 
 // --- Importación por archivo (CSV o JSON) -----------------------------------

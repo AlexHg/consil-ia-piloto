@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import type { Payment } from '~~/shared/types/domain'
+import type { Payment, ReconciliationStatus } from '~~/shared/types/domain'
 
 defineProps<{
   payment: Payment
+  status?: ReconciliationStatus
 }>()
 </script>
 
 <template>
-  <article class="flex flex-col gap-4 h-full p-5 rounded-md bg-default ring-1 ring-default shadow-sm transition hover:shadow-md hover:-translate-y-0.5">
+  <article class="group flex flex-col gap-4 h-full p-5 rounded-md bg-default ring-1 ring-default shadow-sm transition hover:shadow-md hover:-translate-y-0.5">
     <div class="flex items-start justify-between gap-2">
       <div class="min-w-0">
         <p class="text-sm font-semibold text-highlighted truncate">
@@ -17,13 +18,24 @@ defineProps<{
           {{ payment.payerName }}
         </p>
       </div>
-      <UBadge
-        :label="payment.currency"
-        color="secondary"
-        variant="soft"
-        size="sm"
-        class="shrink-0"
-      />
+      <div class="flex items-center gap-1.5 shrink-0">
+        <UBadge
+          v-if="status"
+          :label="paymentStatusLabel(status)"
+          :color="paymentStatusColor(status)"
+          variant="soft"
+          size="sm"
+        />
+        <UBadge
+          :label="payment.currency"
+          color="secondary"
+          variant="soft"
+          size="sm"
+        />
+        <div class="opacity-0 transition group-hover:opacity-100 focus-within:opacity-100">
+          <PoolDeleteButton resource="payments" :id="payment.id" :label="payment.id" />
+        </div>
+      </div>
     </div>
 
     <p class="text-2xl font-semibold tracking-tight text-highlighted tabular-nums">
