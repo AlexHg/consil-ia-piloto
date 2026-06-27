@@ -13,10 +13,18 @@ import { reconciliationLabel } from '~/utils/format'
  * encola la corrida, hace polling del estado hasta detectar que terminó y luego
  * refresca los datos del dashboard. La UI nunca corre lógica de negocio; solo
  * consume los endpoints internos de Nitro.
+ *
+ * El estado (`running` y `progress`) se comparte vía `useState`, de modo que el
+ * card de progreso flotante refleja la corrida sin importar desde qué pantalla
+ * se disparó.
  */
 
 const POLL_INTERVAL_MS = 700
 const POLL_TIMEOUT_MS = 20000
+
+/** Tiempo que el card permanece visible tras terminar antes de auto-ocultarse. */
+const DISMISS_DONE_MS = 4000
+const DISMISS_ERROR_MS = 7000
 
 const REFRESH_KEYS = [
   'reconciliation-results',
@@ -26,73 +34,140 @@ const REFRESH_KEYS = [
   'pool-notes'
 ]
 
+/**
+ * Fases del card de progreso. El backend no expone avance granular (la cola solo
+ * informa inicio/fin), así que el porcentaje se anima de forma asintótica durante
+ * el polling y salta a 100% al detectar la corrida finalizada.
+ */
+export type ReconciliationPhase = 'idle' | 'queueing' | 'processing' | 'done' | 'error'
+
+export interface ReconciliationProgress {
+  phase: ReconciliationPhase
+  /** Avance estimado 0–100 para la barra. */
+  percent: number
+  title: string
+  message: string
+  invoicesCount: number | null
+}
+
+function idleProgress(): ReconciliationProgress {
+  return { phase: 'idle', percent: 0, title: '', message: '', invoicesCount: null }
+}
+
 function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-/** Espera a que aparezca una corrida nueva (distinta a la previa) ya finalizada. */
-async function waitForNewRun(before: ReconciliationRunStatus): Promise<ReconciliationRunStatus | null> {
-  const deadline = Date.now() + POLL_TIMEOUT_MS
+export function useReconciliation() {
+  const toast = useToast()
+  const running = useState<boolean>('reconciliation:running', () => false)
+  const progress = useState<ReconciliationProgress>('reconciliation:progress', idleProgress)
+  const reviewingId = ref<string | null>(null)
 
-  while (Date.now() < deadline) {
-    await sleep(POLL_INTERVAL_MS)
-    const status = await $fetch<ReconciliationRunStatus>('/api/reconciliation/status')
-    const isNewRun = status.runId != null && status.runId !== before.runId
-    if (isNewRun && !status.running && status.finishedAt) {
-      return status
+  let dismissTimer: ReturnType<typeof setTimeout> | null = null
+
+  function scheduleDismiss(delay: number) {
+    if (!import.meta.client) return
+    if (dismissTimer) clearTimeout(dismissTimer)
+    dismissTimer = setTimeout(() => {
+      // No ocultar si entretanto se inició otra corrida.
+      if (!running.value) progress.value = idleProgress()
+    }, delay)
+  }
+
+  /** Oculta el card manualmente (botón cerrar). */
+  function dismissProgress() {
+    if (dismissTimer) clearTimeout(dismissTimer)
+    progress.value = idleProgress()
+  }
+
+  /** Avance asintótico hacia un techo mientras esperamos a que termine la corrida. */
+  function nudgeProgress(ceiling = 92) {
+    const current = progress.value.percent
+    if (current >= ceiling) return
+    progress.value = {
+      ...progress.value,
+      percent: Math.min(ceiling, current + (ceiling - current) * 0.28)
     }
   }
 
-  return null
-}
+  /** Espera a que aparezca una corrida nueva (distinta a la previa) ya finalizada. */
+  async function waitForNewRun(before: ReconciliationRunStatus): Promise<ReconciliationRunStatus | null> {
+    const deadline = Date.now() + POLL_TIMEOUT_MS
 
-export function useReconciliation() {
-  const toast = useToast()
-  const running = ref(false)
-  const reviewingId = ref<string | null>(null)
+    while (Date.now() < deadline) {
+      await sleep(POLL_INTERVAL_MS)
+      nudgeProgress()
+      const status = await $fetch<ReconciliationRunStatus>('/api/reconciliation/status')
+      const isNewRun = status.runId != null && status.runId !== before.runId
+      if (isNewRun && status.invoicesCount != null) {
+        progress.value = { ...progress.value, invoicesCount: status.invoicesCount }
+      }
+      if (isNewRun && !status.running && status.finishedAt) {
+        return status
+      }
+    }
+
+    return null
+  }
 
   async function run(): Promise<void> {
     if (running.value) return
+    if (dismissTimer) clearTimeout(dismissTimer)
     running.value = true
+    progress.value = {
+      phase: 'queueing',
+      percent: 8,
+      title: 'Encolando conciliación',
+      message: 'Preparando la corrida del motor determinístico…',
+      invoicesCount: null
+    }
 
     try {
       const before = await $fetch<ReconciliationRunStatus>('/api/reconciliation/status')
 
       await $fetch('/api/reconciliation/run', { method: 'POST' })
 
-      toast.add({
-        title: 'Conciliación en proceso',
-        description: 'El motor determinístico está procesando las facturas.',
-        color: 'info',
-        icon: 'i-lucide-loader'
-      })
+      progress.value = {
+        phase: 'processing',
+        percent: 22,
+        title: 'Procesando facturas',
+        message: 'El motor determinístico está conciliando los pools.',
+        invoicesCount: before.invoicesCount
+      }
 
       const finished = await waitForNewRun(before)
       await refreshNuxtData(REFRESH_KEYS)
 
       if (finished) {
         const count = finished.invoicesCount ?? 0
-        toast.add({
+        progress.value = {
+          phase: 'done',
+          percent: 100,
           title: 'Conciliación completada',
-          description: `${count} ${count === 1 ? 'factura procesada' : 'facturas procesadas'}.`,
-          color: 'success',
-          icon: 'i-lucide-check'
-        })
+          message: `${count} ${count === 1 ? 'factura procesada' : 'facturas procesadas'}.`,
+          invoicesCount: count
+        }
+        scheduleDismiss(DISMISS_DONE_MS)
       } else {
-        toast.add({
+        progress.value = {
+          phase: 'done',
+          percent: 100,
           title: 'Conciliación encolada',
-          description: 'El resultado se actualizará en unos instantes.',
-          color: 'warning',
-          icon: 'i-lucide-clock'
-        })
+          message: 'El resultado se actualizará en unos instantes.',
+          invoicesCount: null
+        }
+        scheduleDismiss(DISMISS_DONE_MS)
       }
     } catch (error) {
-      toast.add({
+      progress.value = {
+        phase: 'error',
+        percent: 100,
         title: 'No se pudo ejecutar la conciliación',
-        description: extractErrorMessage(error),
-        color: 'error',
-        icon: 'i-lucide-x'
-      })
+        message: extractErrorMessage(error),
+        invoicesCount: null
+      }
+      scheduleDismiss(DISMISS_ERROR_MS)
     } finally {
       running.value = false
     }
@@ -136,5 +211,5 @@ export function useReconciliation() {
     }
   }
 
-  return { running, run, review, reviewingId }
+  return { running, progress, run, review, reviewingId, dismissProgress }
 }

@@ -69,5 +69,7 @@ const navItems = computed<NavigationMenuItem[][]>(() => [
     </UDashboardSidebar>
 
     <slot />
+
+    <ReconciliationProgressCard />
   </UDashboardGroup>
 </template>
