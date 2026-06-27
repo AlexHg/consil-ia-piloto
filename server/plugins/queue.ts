@@ -12,20 +12,24 @@
 
 import { QUEUES, stopBoss, useBoss } from '../queue/boss'
 import { enqueueReconciliation, registerReconciliationWorker } from '../services/reconciliation/queue'
+import { enqueueEnrichment, registerEnrichmentWorker } from '../services/ai/queue'
 import { listReconciliations } from '../repositories/reconciliations.repository'
 
 export default defineNitroPlugin(async (nitroApp) => {
   try {
     const boss = await useBoss()
+    await boss.createQueue(QUEUES.enrichment)
     await boss.createQueue(QUEUES.reconciliation)
+    await registerEnrichmentWorker()
     await registerReconciliationWorker()
 
     const existing = await listReconciliations()
     if (existing.length === 0) {
-      await enqueueReconciliation('startup')
+      // Enriquecemos primero; el worker encadena la conciliación al terminar.
+      await enqueueEnrichment('startup')
     }
 
-    console.info('[pg-boss] cola y worker de conciliación listos')
+    console.info('[pg-boss] colas y workers (enriquecimiento + conciliación) listos')
   } catch (error) {
     // No tumbamos el arranque del servidor si la DB aún no está disponible;
     // useBoss() reintentará la creación en la próxima llamada.

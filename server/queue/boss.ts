@@ -15,6 +15,7 @@ import { PgBoss } from 'pg-boss'
 
 /** Nombres de las colas. Centralizados para evitar strings mágicos dispersos. */
 export const QUEUES = {
+  enrichment: 'enrichment',
   reconciliation: 'reconciliation'
 } as const
 

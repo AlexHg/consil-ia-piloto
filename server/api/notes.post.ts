@@ -1,5 +1,5 @@
 import { createNote } from '../services/ingestion'
-import { enqueueReconciliation } from '../services/reconciliation/queue'
+import { enqueueEnrichment } from '../services/ai/queue'
 import type { OperationalNote } from '~~/shared/types/domain'
 
 export default defineEventHandler(async (event) => {
@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const note = await createNote(body)
-  await enqueueReconciliation('manual', { debounce: true })
+  await enqueueEnrichment('manual', { debounce: true })
 
   setResponseStatus(event, 201)
   return note

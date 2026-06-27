@@ -1,5 +1,5 @@
 import { createInvoice } from '../services/ingestion'
-import { enqueueReconciliation } from '../services/reconciliation/queue'
+import { enqueueEnrichment } from '../services/ai/queue'
 import type { Invoice } from '~~/shared/types/domain'
 
 export default defineEventHandler(async (event) => {
@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const invoice = await createInvoice(body)
-  await enqueueReconciliation('manual', { debounce: true })
+  await enqueueEnrichment('manual', { debounce: true })
 
   setResponseStatus(event, 201)
   return invoice

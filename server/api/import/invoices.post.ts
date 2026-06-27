@@ -1,5 +1,5 @@
 import { importInvoices, type ImportBody } from '../../services/ingestion'
-import { enqueueReconciliation } from '../../services/reconciliation/queue'
+import { enqueueEnrichment } from '../../services/ai/queue'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody<ImportBody>(event)
@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 422, statusMessage: 'No se encontraron facturas válidas en el archivo.' })
   }
 
-  await enqueueReconciliation('import', { debounce: true })
+  await enqueueEnrichment('import', { debounce: true })
 
   setResponseStatus(event, 201)
   return result
