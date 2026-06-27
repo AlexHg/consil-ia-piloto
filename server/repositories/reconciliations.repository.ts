@@ -32,6 +32,33 @@ export async function finishRun(runId: string): Promise<void> {
     .execute()
 }
 
+export interface LatestRun {
+  id: string
+  trigger: string
+  invoicesCount: number | null
+  startedAt: Date
+  finishedAt: Date | null
+}
+
+/** Corrida más reciente (en proceso o finalizada). La UI la consulta para refrescar. */
+export async function getLatestRun(): Promise<LatestRun | null> {
+  const row = await useDb()
+    .selectFrom('reconciliation_runs')
+    .select(['id', 'trigger', 'invoices_count', 'started_at', 'finished_at'])
+    .orderBy('started_at', 'desc')
+    .executeTakeFirst()
+
+  if (!row) return null
+
+  return {
+    id: row.id,
+    trigger: row.trigger,
+    invoicesCount: row.invoices_count,
+    startedAt: new Date(row.started_at as unknown as string),
+    finishedAt: row.finished_at ? new Date(row.finished_at as unknown as string) : null
+  }
+}
+
 /**
  * Persiste un lote de resultados bajo un mismo `runId`. Devuelve los IDs creados.
  */

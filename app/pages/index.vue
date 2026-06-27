@@ -9,6 +9,8 @@ useSeoMeta({ title: 'Dashboard' })
 
 const { invoices, payments, notes, summary, pending } = usePools()
 
+const { run: runReconciliation, running: reconciling } = useReconciliation()
+
 const { data: results } = useFetch<ReconciliationResult[]>('/api/reconciliation', {
   key: 'reconciliation-results',
   default: () => []
@@ -59,9 +61,9 @@ const breakdown = computed(() => {
 
         <template #right>
           <UButton icon="i-lucide-play" label="Ejecutar conciliación" color="primary" size="sm"
-            class="hidden sm:inline-flex" />
+            class="hidden sm:inline-flex" :loading="reconciling" @click="runReconciliation" />
           <UButton icon="i-lucide-play" color="primary" size="sm" class="sm:hidden"
-            aria-label="Ejecutar conciliación" />
+            aria-label="Ejecutar conciliación" :loading="reconciling" @click="runReconciliation" />
           <UColorModeButton />
         </template>
       </UDashboardNavbar>

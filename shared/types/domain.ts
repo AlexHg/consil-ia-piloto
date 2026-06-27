@@ -69,6 +69,21 @@ export interface ReconciliationResult {
 }
 
 /**
+ * Estado de la ejecución más reciente del motor de conciliación.
+ *
+ * La conciliación se procesa de forma asíncrona (cola pg-boss), por lo que la UI
+ * consulta este estado para saber cuándo terminó una corrida y refrescar.
+ */
+export interface ReconciliationRunStatus {
+  runId: string | null
+  trigger: string
+  invoicesCount: number | null
+  startedAt: string | null
+  finishedAt: string | null
+  running: boolean
+}
+
+/**
  * Resumen ejecutivo de conciliación para el dashboard (Mission Control).
  */
 export interface ReconciliationSummary {
