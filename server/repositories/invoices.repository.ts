@@ -5,6 +5,7 @@
  * dominio; nunca expone detalles de persistencia hacia arriba.
  */
 
+import { sql } from 'kysely'
 import { useDb } from '../db/client'
 import type { Invoice } from '~~/shared/types/domain'
 import { invoiceFromRow, invoiceToRow } from './mappers'
@@ -53,4 +54,24 @@ export async function deleteInvoice(id: string): Promise<boolean> {
     .where('id', '=', id)
     .executeTakeFirst()
   return Number(result.numDeletedRows ?? 0) > 0
+}
+
+/** Facturas aún sin embedding (pendientes de enriquecimiento). */
+export async function listInvoicesMissingEmbedding(): Promise<Invoice[]> {
+  const rows = await useDb()
+    .selectFrom('invoices')
+    .selectAll()
+    .where('embedding', 'is', null)
+    .orderBy('created_at')
+    .execute()
+  return rows.map(invoiceFromRow)
+}
+
+/** Persiste el embedding de una factura (literal pgvector `'[...]'`). */
+export async function updateInvoiceEmbedding(id: string, literal: string): Promise<void> {
+  await useDb()
+    .updateTable('invoices')
+    .set({ embedding: sql<string>`${literal}::vector`, updated_at: sql`now()` })
+    .where('id', '=', id)
+    .execute()
 }
