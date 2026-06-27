@@ -1,0 +1,32 @@
+[
+  {
+    "id": "INV-1001",
+    "vendor": "ACME Logistics",
+    "invoiceDate": "2026-05-01",
+    "dueDate": "2026-05-30",
+    "currency": "USD",
+    "amount": 1250.00,
+    "poNumber": "PO-8891",
+    "status": "open"
+  },
+  {
+    "id": "INV-1002",
+    "vendor": "Grupo Norte SA",
+    "invoiceDate": "2026-05-03",
+    "dueDate": "2026-06-02",
+    "currency": "USD",
+    "amount": 980.50,
+    "poNumber": "PO-8892",
+    "status": "open"
+  },
+  {
+    "id": "INV-1006",
+    "vendor": "Northwind Foods",
+    "invoiceDate": "2026-05-11",
+    "dueDate": "2026-06-11",
+    "currency": "MXN",
+    "amount": 2200.00,
+    "poNumber": "PO-8896",
+    "status": "open"
+  }
+]
