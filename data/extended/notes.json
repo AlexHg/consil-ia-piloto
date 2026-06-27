@@ -1,0 +1,62 @@
+[
+  {
+    "source": "email",
+    "text": "ACME Logistics confirmed payment for invoice INV-1001. There was a typo in the payer name from the bank export."
+  },
+  {
+    "source": "email",
+    "text": "Blue Ocean Supplies sent a partial payment for PO-8893. Remaining balance will be paid next week."
+  },
+  {
+    "source": "slack",
+    "text": "Delta Tech Services applied a 10 USD early payment discount for invoice INV-1005."
+  },
+  {
+    "source": "ops-note",
+    "text": "Prime Retail Ops may have accidentally sent the same payment twice for invoice INV-1007. Please verify before closing."
+  },
+  {
+    "source": "email",
+    "text": "Nova Packaging normally invoices in USD. Any EUR payment should be manually reviewed before reconciliation."
+  },
+  {
+    "source": "slack",
+    "text": "Cedar & Co Consulting split the payment for INV-1013 into two transfers: 2000 USD and 2500 USD against PO-8903."
+  },
+  {
+    "source": "email",
+    "text": "Atlas Manufacturing pays under the shortened name 'Atlas Mfg' in the bank feed. Match by PO-8904 when in doubt."
+  },
+  {
+    "source": "ops-note",
+    "text": "Silver Lining Cleaning rarely includes the invoice number; they reference the service month instead. INV-1019 corresponds to May cleaning services."
+  },
+  {
+    "source": "email",
+    "text": "Coral Bay Hotels overpaid invoice INV-1033 by 100 USD. Finance will issue a credit note on the next cycle."
+  },
+  {
+    "source": "slack",
+    "text": "Sunrise Media is paying INV-1037 in two installments of 1050 USD each (PAY-9040 and PAY-9045)."
+  },
+  {
+    "source": "ops-note",
+    "text": "Blue Ocean Supplies completed the remaining balance for PO-8893 with PAY-9043. Original invoice INV-1003 should now be fully settled."
+  },
+  {
+    "source": "email",
+    "text": "Grupo Norte appears as both 'Grupo Norte' and 'Grupo Norte SA' in payments. They are the same vendor."
+  },
+  {
+    "source": "ops-note",
+    "text": "Wire transfer WT-55012 (PAY-9044) from 'Mystery Payer' has no matching invoice yet. Hold for investigation."
+  },
+  {
+    "source": "slack",
+    "text": "Lakeside Catering references events instead of invoice numbers. PAY-9032 corresponds to INV-1029."
+  },
+  {
+    "source": "email",
+    "text": "Vertex Software Inc has two open invoices (INV-1017 and INV-1030). Confirm the amount before applying each payment."
+  }
+]

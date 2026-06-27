@@ -1,0 +1,46 @@
+payment_id,payment_date,payer_name,currency,amount,reference
+PAY-9001,2026-05-15,ACME Logistcs,USD,1250.00,Payment for invoice 1001
+PAY-9002,2026-05-18,Grupo Norte,USD,980.50,INV1002
+PAY-9003,2026-05-20,Blue Ocean Supplies,USD,3000.00,Partial payment PO-8893
+PAY-9004,2026-05-22,Unknown Vendor,USD,700.00,PO-8894
+PAY-9005,2026-05-25,Delta Technology Services,USD,1490.00,Invoice 1005 discount applied
+PAY-9006,2026-05-26,Northwind Food,MXN,2200.00,PO-8896
+PAY-9007,2026-05-27,Prime Retail Ops,USD,750.00,Payment for INV-1007
+PAY-9008,2026-05-28,Prime Retail Operations,USD,750.00,Second payment for INV-1007
+PAY-9009,2026-05-29,Nova Packaging,EUR,1200.00,INV-1008
+PAY-9010,2026-05-30,Random Supplier,USD,600.00,No invoice reference
+PAY-9011,2026-05-31,Summit Industrial,USD,5200.00,INV-1009
+PAY-9012,2026-06-01,Greenfield Materials,USD,3375.25,Payment ref PO-8900
+PAY-9013,2026-06-01,Orion Freight Inc,USD,890.00,INV 1011
+PAY-9014,2026-06-02,Pinnacle Office,USD,1125.75,invoice 1012
+PAY-9015,2026-06-02,Cedar and Co,USD,2000.00,Partial payment INV-1013
+PAY-9016,2026-06-03,Cedar & Co Consulting,USD,2500.00,Remaining balance PO-8903
+PAY-9017,2026-06-03,Atlas Mfg,USD,7800.00,PO-8904
+PAY-9018,2026-06-04,Riverside Utilities,USD,415.30,INV-1015
+PAY-9019,2026-06-04,Grupo Norte SA,USD,2310.00,INV-1016
+PAY-9020,2026-06-05,Vertex Software,USD,9900.00,Payment for invoice 1017
+PAY-9021,2026-06-05,Maple Logistics,CAD,1860.00,PO-8908
+PAY-9022,2026-06-06,Silver Lining,USD,540.00,Cleaning services May
+PAY-9023,2026-06-06,Delta Tech Services,USD,2250.00,INV-1020
+PAY-9024,2026-06-07,Harbor Point Imports,EUR,3100.00,INV-1021
+PAY-9025,2026-06-07,Northwind Foods,MXN,5400.00,PO-8912
+PAY-9026,2026-06-08,Quantum Analytics,USD,6250.00,Inv 1023
+PAY-9027,2026-06-08,Bright Path Marketing,USD,1800.00,PO-8914
+PAY-9028,2026-06-09,ACME Logistics,USD,1450.00,INV-1025
+PAY-9029,2026-06-09,Stonebridge Legal LLP,USD,3200.00,Legal retainer PO-8916
+PAY-9030,2026-06-10,Evergreen Packaging,USD,975.00,INV-1027
+PAY-9031,2026-06-10,Falcon Security,USD,2640.00,PO-8918
+PAY-9032,2026-06-11,Lakeside Catering,USD,860.45,Event catering
+PAY-9033,2026-06-11,Vertex Software Inc,USD,4950.00,INV-1030
+PAY-9034,2026-06-12,Summit Industrial,USD,5200.00,INV-1031
+PAY-9035,2026-06-12,Pioneer Electric Co,USD,3720.00,PO-8922
+PAY-9036,2026-06-13,Coral Bay Hotels,USD,1390.00,INV-1033
+PAY-9037,2026-06-13,Grupo Sur,MXN,8900.00,PO-8924
+PAY-9038,2026-06-14,Nova Packaging,USD,1200.00,INV-1035
+PAY-9039,2026-06-14,Titan Steelworks,USD,11250.00,Payment for invoice 1036
+PAY-9040,2026-06-15,Sunrise Media,USD,1050.00,Partial INV-1037
+PAY-9041,2026-06-15,Heritage Printing,USD,430.00,PO-8929
+PAY-9042,2026-06-16,Pinnacle Office Co,USD,2480.50,INV-1040
+PAY-9043,2026-06-16,Blue Ocean Supplies,USD,1300.00,Remaining balance PO-8893
+PAY-9044,2026-06-17,Mystery Payer,USD,1875.00,Wire transfer ref WT-55012
+PAY-9045,2026-06-17,Sunrise Media,USD,1050.00,Final payment invoice 1037

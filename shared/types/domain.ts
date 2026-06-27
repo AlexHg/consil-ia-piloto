@@ -67,3 +67,17 @@ export interface ReconciliationResult {
   explanation: string
   signals: EvidenceSignal[]
 }
+
+/**
+ * Resumen ejecutivo de conciliación para el dashboard (Mission Control).
+ */
+export interface ReconciliationSummary {
+  total: number
+  matched: number
+  partial: number
+  needsReview: number
+  unmatched: number
+  suspicious: number
+  pending: number
+  autoMatchRate: number
+}
