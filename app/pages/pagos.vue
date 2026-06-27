@@ -26,6 +26,8 @@ const {
     compare: (a, b) => a.amount - b.amount
   }
 ], { key: 'date', direction: 'desc' })
+
+const { page, pageSize, total, rangeStart, rangeEnd, paginated } = usePagination(sortedPayments)
 </script>
 
 <template>
@@ -57,11 +59,19 @@ const {
 
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           <DashboardPaymentCard
-            v-for="payment in sortedPayments"
+            v-for="payment in paginated"
             :key="payment.id"
             :payment="payment"
           />
         </div>
+
+        <PoolPagination
+          v-model:page="page"
+          v-model:page-size="pageSize"
+          :total="total"
+          :range-start="rangeStart"
+          :range-end="rangeEnd"
+        />
       </div>
     </template>
   </UDashboardPanel>

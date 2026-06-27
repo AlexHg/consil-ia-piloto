@@ -48,6 +48,8 @@ const {
     compare: (a, b) => a.amount - b.amount
   }
 ])
+
+const { page, pageSize, total, rangeStart, rangeEnd, paginated } = usePagination(sortedInvoices)
 </script>
 
 <template>
@@ -79,12 +81,20 @@ const {
 
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           <DashboardInvoiceCard
-            v-for="invoice in sortedInvoices"
+            v-for="invoice in paginated"
             :key="invoice.id"
             :invoice="invoice"
             :status="statusByInvoice.get(invoice.id)"
           />
         </div>
+
+        <PoolPagination
+          v-model:page="page"
+          v-model:page-size="pageSize"
+          :total="total"
+          :range-start="rangeStart"
+          :range-end="rangeEnd"
+        />
 
         <USkeleton v-if="pending && invoices.length === 0" class="h-40 rounded-md" />
       </div>

@@ -48,6 +48,8 @@ const rows = computed(() =>
     invoice: invoiceById.value.get(result.invoiceId)
   }))
 )
+
+const { page, pageSize, total, rangeStart, rangeEnd, paginated } = usePagination(rows)
 </script>
 
 <template>
@@ -81,7 +83,7 @@ const rows = computed(() =>
         <USkeleton v-if="pending && rows.length === 0" class="h-40 rounded-md" />
 
         <article
-          v-for="{ result, invoice } in rows"
+          v-for="{ result, invoice } in paginated"
           :key="result.invoiceId"
           class="flex flex-col gap-4 p-5 rounded-md bg-default ring-1 ring-default shadow-sm"
         >
@@ -166,6 +168,14 @@ const rows = computed(() =>
             />
           </div>
         </article>
+
+        <PoolPagination
+          v-model:page="page"
+          v-model:page-size="pageSize"
+          :total="total"
+          :range-start="rangeStart"
+          :range-end="rangeEnd"
+        />
 
         <UModal
           v-model:open="correctOpen"

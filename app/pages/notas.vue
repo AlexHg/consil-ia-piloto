@@ -28,6 +28,8 @@ const {
     compare: (a, b) => a.text.localeCompare(b.text)
   }
 ])
+
+const { page, pageSize, total, rangeStart, rangeEnd, paginated } = usePagination(sortedNotes)
 </script>
 
 <template>
@@ -59,11 +61,19 @@ const {
 
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           <DashboardNoteCard
-            v-for="(note, index) in sortedNotes"
+            v-for="(note, index) in paginated"
             :key="`${note.source}-${index}`"
             :note="note"
           />
         </div>
+
+        <PoolPagination
+          v-model:page="page"
+          v-model:page-size="pageSize"
+          :total="total"
+          :range-start="rangeStart"
+          :range-end="rangeEnd"
+        />
       </div>
     </template>
   </UDashboardPanel>
