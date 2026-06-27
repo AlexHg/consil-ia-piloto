@@ -1,4 +1,5 @@
 import { createPayment } from '../services/ingestion'
+import { enqueueReconciliation } from '../services/reconciliation/queue'
 import type { Payment } from '~~/shared/types/domain'
 
 export default defineEventHandler(async (event) => {
@@ -11,6 +12,9 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 422, statusMessage: 'El monto debe ser mayor a 0.' })
   }
 
+  const payment = await createPayment(body)
+  await enqueueReconciliation('manual', { debounce: true })
+
   setResponseStatus(event, 201)
-  return createPayment(body)
+  return payment
 })

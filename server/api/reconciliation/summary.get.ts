@@ -1,15 +1,8 @@
-import { loadInvoices, loadPayments, loadNotes } from '../../services/ingestion'
-import { reconcileAll } from '../../services/reconciliation/engine'
+import { listReconciliations } from '../../repositories/reconciliations.repository'
 import type { ReconciliationSummary } from '~~/shared/types/domain'
 
 export default defineEventHandler(async (): Promise<ReconciliationSummary> => {
-  const [invoices, payments, notes] = await Promise.all([
-    loadInvoices(),
-    loadPayments(),
-    loadNotes()
-  ])
-
-  const results = reconcileAll(invoices, payments, notes)
+  const results = await listReconciliations()
   const total = results.length || 1
 
   const count = (status: string) => results.filter(r => r.status === status).length

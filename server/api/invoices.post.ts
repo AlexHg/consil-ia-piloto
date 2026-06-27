@@ -1,4 +1,5 @@
 import { createInvoice } from '../services/ingestion'
+import { enqueueReconciliation } from '../services/reconciliation/queue'
 import type { Invoice } from '~~/shared/types/domain'
 
 export default defineEventHandler(async (event) => {
@@ -11,6 +12,9 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 422, statusMessage: 'El monto debe ser mayor a 0.' })
   }
 
+  const invoice = await createInvoice(body)
+  await enqueueReconciliation('manual', { debounce: true })
+
   setResponseStatus(event, 201)
-  return createInvoice(body)
+  return invoice
 })
