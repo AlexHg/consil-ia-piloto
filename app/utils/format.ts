@@ -27,6 +27,13 @@ export function formatDate(value: string): string {
   }).format(date)
 }
 
+/** Convierte una fecha a timestamp comparable (0 si es inválida o vacía). */
+export function dateValue(value: string): number {
+  if (!value) return 0
+  const time = new Date(value).getTime()
+  return Number.isNaN(time) ? 0 : time
+}
+
 type UiColor = 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'
 
 export function reconciliationColor(status: ReconciliationStatus): UiColor {
@@ -58,6 +65,24 @@ export function reconciliationLabel(status: ReconciliationStatus): string {
     default:
       return 'Sin conciliar'
   }
+}
+
+/**
+ * Prioridad de orden por estado: lo que exige atención primero (Revisión),
+ * lo resuelto después (Conciliado) y lo sospechoso al final. Las facturas sin
+ * resultado de conciliación se ubican al final.
+ */
+const RECONCILIATION_ORDER: Record<ReconciliationStatus, number> = {
+  'Needs Review': 0,
+  'Partial Match': 1,
+  'Unmatched': 2,
+  'Matched': 3,
+  'Suspicious': 4
+}
+
+export function reconciliationRank(status?: ReconciliationStatus): number {
+  if (!status) return 5
+  return RECONCILIATION_ORDER[status] ?? 5
 }
 
 const NOTE_SOURCE_META: Record<string, { label: string, icon: string }> = {

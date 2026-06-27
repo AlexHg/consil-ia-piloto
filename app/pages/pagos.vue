@@ -6,6 +6,26 @@ definePageMeta({
 useSeoMeta({ title: 'Pagos' })
 
 const { payments } = usePools()
+
+const {
+  sortKey,
+  direction,
+  sorted: sortedPayments,
+  selectItems: sortOptions
+} = usePoolSort(payments, [
+  {
+    value: 'date',
+    label: 'Por fecha',
+    icon: 'i-lucide-calendar',
+    compare: (a, b) => dateValue(a.paymentDate) - dateValue(b.paymentDate)
+  },
+  {
+    value: 'amount',
+    label: 'Por monto',
+    icon: 'i-lucide-banknote',
+    compare: (a, b) => a.amount - b.amount
+  }
+], { key: 'date', direction: 'desc' })
 </script>
 
 <template>
@@ -24,13 +44,20 @@ const { payments } = usePools()
 
     <template #body>
       <div class="flex flex-col gap-6">
-        <p class="text-sm text-muted">
-          Pool de pagos normalizados. {{ payments.length }} movimientos.
-        </p>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <p class="text-sm text-muted">
+            Pool de pagos normalizados. {{ payments.length }} movimientos.
+          </p>
+          <PoolSortControls
+            v-model:sort-key="sortKey"
+            v-model:direction="direction"
+            :options="sortOptions"
+          />
+        </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           <DashboardPaymentCard
-            v-for="payment in payments"
+            v-for="payment in sortedPayments"
             :key="payment.id"
             :payment="payment"
           />

@@ -24,6 +24,14 @@ const statusByInvoice = computed(() => {
   return map
 })
 
+// El dashboard prioriza siempre por estado: Revisión primero, Conciliado
+// después y Sospechoso al final (ver reconciliationRank).
+const sortedInvoices = computed(() =>
+  [...invoices.value].sort((a, b) =>
+    reconciliationRank(statusByInvoice.value.get(a.id)) - reconciliationRank(statusByInvoice.value.get(b.id))
+  )
+)
+
 const totalInvoiceAmount = computed(() =>
   invoices.value.reduce((sum, invoice) => sum + invoice.amount, 0)
 )
@@ -133,7 +141,7 @@ const breakdown = computed(() => {
 
         <!-- Carruseles de los tres inputs -->
         <DashboardPoolSection title="Pool de Facturas" subtitle="Documentos de venta normalizados"
-          icon="i-lucide-file-text" color="primary" to="/facturas" :items="invoices" :loading="pending">
+          icon="i-lucide-file-text" color="primary" to="/facturas" :items="sortedInvoices" :loading="pending">
           <template #default="{ item }">
             <DashboardInvoiceCard :invoice="item" :status="statusByInvoice.get(item.id)" />
           </template>

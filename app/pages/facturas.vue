@@ -21,6 +21,33 @@ const statusByInvoice = computed(() => {
   }
   return map
 })
+
+const {
+  sortKey,
+  direction,
+  sorted: sortedInvoices,
+  selectItems: sortOptions
+} = usePoolSort(invoices, [
+  {
+    value: 'status',
+    label: 'Por estado',
+    icon: 'i-lucide-flag',
+    compare: (a, b) =>
+      reconciliationRank(statusByInvoice.value.get(a.id)) - reconciliationRank(statusByInvoice.value.get(b.id))
+  },
+  {
+    value: 'date',
+    label: 'Por fecha',
+    icon: 'i-lucide-calendar',
+    compare: (a, b) => dateValue(a.dueDate) - dateValue(b.dueDate)
+  },
+  {
+    value: 'amount',
+    label: 'Por monto',
+    icon: 'i-lucide-banknote',
+    compare: (a, b) => a.amount - b.amount
+  }
+])
 </script>
 
 <template>
@@ -39,13 +66,20 @@ const statusByInvoice = computed(() => {
 
     <template #body>
       <div class="flex flex-col gap-6">
-        <p class="text-sm text-muted">
-          Pool de facturas normalizadas. {{ invoices.length }} documentos.
-        </p>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <p class="text-sm text-muted">
+            Pool de facturas normalizadas. {{ invoices.length }} documentos.
+          </p>
+          <PoolSortControls
+            v-model:sort-key="sortKey"
+            v-model:direction="direction"
+            :options="sortOptions"
+          />
+        </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           <DashboardInvoiceCard
-            v-for="invoice in invoices"
+            v-for="invoice in sortedInvoices"
             :key="invoice.id"
             :invoice="invoice"
             :status="statusByInvoice.get(invoice.id)"

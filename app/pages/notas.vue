@@ -6,6 +6,28 @@ definePageMeta({
 useSeoMeta({ title: 'Notas' })
 
 const { notes } = usePools()
+
+// Las notas no tienen estado/fecha/monto; se ordenan por los campos que sí
+// existen en el dominio (fuente y texto).
+const {
+  sortKey,
+  direction,
+  sorted: sortedNotes,
+  selectItems: sortOptions
+} = usePoolSort(notes, [
+  {
+    value: 'source',
+    label: 'Por fuente',
+    icon: 'i-lucide-inbox',
+    compare: (a, b) => a.source.localeCompare(b.source)
+  },
+  {
+    value: 'text',
+    label: 'Por texto',
+    icon: 'i-lucide-text',
+    compare: (a, b) => a.text.localeCompare(b.text)
+  }
+])
 </script>
 
 <template>
@@ -24,14 +46,21 @@ const { notes } = usePools()
 
     <template #body>
       <div class="flex flex-col gap-6">
-        <p class="text-sm text-muted">
-          Contexto operativo interpretado por IA. {{ notes.length }} notas.
-        </p>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <p class="text-sm text-muted">
+            Contexto operativo interpretado por IA. {{ notes.length }} notas.
+          </p>
+          <PoolSortControls
+            v-model:sort-key="sortKey"
+            v-model:direction="direction"
+            :options="sortOptions"
+          />
+        </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           <DashboardNoteCard
-            v-for="(note, index) in notes"
-            :key="index"
+            v-for="(note, index) in sortedNotes"
+            :key="`${note.source}-${index}`"
             :note="note"
           />
         </div>
