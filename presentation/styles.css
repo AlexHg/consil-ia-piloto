@@ -317,6 +317,13 @@
   color: var(--text-color);
 }
 .pill i { color: var(--brand-500); font-size: 16pt; }
+.pill-sm {
+  padding: 7px 12px;
+  font-size: 11.5pt;
+  border-radius: 10px;
+  gap: 7px;
+}
+.pill-sm i { font-size: 12pt; }
 
 /* ===========================================
    FLOW / PIPELINE STEPS

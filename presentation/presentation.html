@@ -903,14 +903,14 @@
                   <span class="badge matched">100%</span>
                 </div>
                 <div class="layer alt">
-                  <span class="ltag" style="min-width: 58px">0:15</span>
+                  <span class="ltag" style="min-width: 58px">0:30</span>
                   <p style="flex: 1">
                     <strong>Revisión II</strong> ·
                     <span class="text-muted">Q&amp;A</span>
                   </p>
                 </div>
                 <div class="layer alt">
-                  <span class="ltag" style="min-width: 58px">0:30</span>
+                  <span class="ltag" style="min-width: 58px">0:40</span>
                   <p style="flex: 1">
                     <strong>Presentación</strong> ·
                     <span class="text-muted">plasmar ideas</span>
@@ -919,10 +919,112 @@
               </div>
             </div>
           </div>
+          <p class="footnote">
+            <i class="fa-solid fa-clock text-brand"></i>&nbsp; El proyecto se
+            elaboró en <strong>6 horas</strong> a lo largo del fin de semana;
+            el tiempo se midió con el método <strong>Pomodoro</strong>.
+          </p>
+        </section>
+
+        <section id="scaffolding">
+          <p class="eyebrow">10 — Fundación del repo</p>
+          <h2>Scaffolding del proyecto</h2>
+          <div class="content">
+            <p class="text-sm text-muted" style="margin-top: -4px">
+              Enfoque <strong>documentation-first</strong>: el diseño y las
+              reglas del agente viven fuera del código y guían la
+              implementación. Los datos se organizan en dos niveles; sobre esa
+              base se monta la app con <strong>servicios desacoplados</strong> e
+              infra mínima.
+            </p>
+            <div
+              style="
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 14px;
+                margin-top: 14px;
+              "
+            >
+              <div class="card accent">
+                <div class="card-icon">
+                  <i class="fa-solid fa-folder-open"></i>
+                </div>
+                <h3 style="font-size: 15pt">
+                  <span class="mono">.knowledge/docs/</span>
+                </h3>
+                <p class="text-sm text-muted" style="margin: 0">
+                  Brief, arquitectura, modelo de datos, UI/UX y stack — todo
+                  el contexto de diseño en texto.
+                </p>
+              </div>
+              <div class="card accent">
+                <div class="card-icon amber">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <h3 style="font-size: 15pt">
+                  <span class="mono">.cursor/skills/</span>
+                </h3>
+                <p class="text-sm text-muted" style="margin: 0">
+                  Misma visión, operativa: el agente sigue estas reglas al
+                  implementar.
+                </p>
+              </div>
+              <div class="card accent">
+                <div class="card-icon green">
+                  <i class="fa-solid fa-flask"></i>
+                </div>
+                <h3 style="font-size: 15pt">
+                  <span class="mono">data/samples/</span>
+                </h3>
+                <p class="text-sm text-muted" style="margin: 0">
+                  Dataset del reto · casos borde cubiertos · seed por defecto
+                  del proyecto.
+                </p>
+              </div>
+              <div class="card accent">
+                <div class="card-icon sky">
+                  <i class="fa-solid fa-database"></i>
+                </div>
+                <h3 style="font-size: 15pt">
+                  <span class="mono">data/extended/</span>
+                </h3>
+                <p class="text-sm text-muted" style="margin: 0">
+                  ~5× más registros · mismos formatos · para demo y pruebas de
+                  volumen.
+                </p>
+              </div>
+            </div>
+            <div
+              style="
+                margin-top: 22px;
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 10px;
+              "
+            >
+              <span class="pill pill-sm"
+                ><i class="fa-solid fa-book"></i>
+                <span class="mono">README.md</span> — onboarding y API</span
+              >
+              <span class="pill pill-sm"
+                ><i class="fa-solid fa-gears"></i>
+                <span class="mono">ENGINE.md</span> — motor e IA</span
+              >
+              <span class="pill pill-sm"
+                ><i class="fa-brands fa-docker"></i>
+                <span class="mono">docker-compose.yml</span> — Postgres</span
+              >
+              <span class="pill pill-sm"
+                ><i class="fa-solid fa-cubes"></i>
+                <span class="mono">server/services/</span> — lógica de negocio</span
+              >
+            </div>
+          </div>
         </section>
 
         <section id="roadmap">
-          <p class="eyebrow">10 — Hacia producción</p>
+          <p class="eyebrow">11 — Hacia producción</p>
           <h2>Roadmap</h2>
           <div class="content">
             <div
@@ -984,8 +1086,7 @@
               "
             >
               <p style="margin: 0; font-size: 17pt">
-                <strong>Base sólida:</strong> determinístico, explicable y
-                extensible. Agregar una fuente nueva no toca el motor.
+                <strong>Base sólida:</strong> Agregar una fuente nueva no toca el motor.
               </p>
               <span
                 class="badge"
