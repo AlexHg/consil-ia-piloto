@@ -26,13 +26,21 @@ const statusByInvoice = computed(() => {
   return map
 })
 
+// El dashboard muestra solo un avance de cada pool; el detalle completo vive en
+// las páginas dedicadas (View all).
+const DASHBOARD_POOL_LIMIT = 15
+
 // El dashboard prioriza siempre por estado: Revisión primero, Conciliado
 // después y Sospechoso al final (ver reconciliationRank).
 const sortedInvoices = computed(() =>
   [...invoices.value].sort((a, b) =>
     reconciliationRank(statusByInvoice.value.get(a.id)) - reconciliationRank(statusByInvoice.value.get(b.id))
-  )
+  ).slice(0, DASHBOARD_POOL_LIMIT)
 )
+
+const previewPayments = computed(() => payments.value.slice(0, DASHBOARD_POOL_LIMIT))
+
+const previewNotes = computed(() => notes.value.slice(0, DASHBOARD_POOL_LIMIT))
 
 const totalInvoiceAmount = computed(() =>
   invoices.value.reduce((sum, invoice) => sum + invoice.amount, 0)
@@ -44,19 +52,19 @@ const totalDocuments = computed(() =>
 
 const greeting = computed(() => {
   const hour = new Date().getHours()
-  if (hour < 12) return 'Buenos días'
-  if (hour < 19) return 'Buenas tardes'
-  return 'Buenas noches'
+  if (hour < 12) return 'Good morning'
+  if (hour < 19) return 'Good afternoon'
+  return 'Good evening'
 })
 
 const breakdown = computed(() => {
   const s = summary.value
   return [
-    { key: 'matched', label: 'Conciliado', value: s.matched, color: 'bg-success' },
-    { key: 'partial', label: 'Parcial', value: s.partial, color: 'bg-warning' },
-    { key: 'needsReview', label: 'Revisión', value: s.needsReview, color: 'bg-amber-300' },
-    { key: 'suspicious', label: 'Sospechoso', value: s.suspicious, color: 'bg-error' },
-    { key: 'unmatched', label: 'Sin conciliar', value: s.unmatched, color: 'bg-muted' }
+    { key: 'matched', label: 'Matched', value: s.matched, color: 'bg-success' },
+    { key: 'partial', label: 'Partial', value: s.partial, color: 'bg-warning' },
+    { key: 'needsReview', label: 'Review', value: s.needsReview, color: 'bg-amber-300' },
+    { key: 'suspicious', label: 'Suspicious', value: s.suspicious, color: 'bg-error' },
+    { key: 'unmatched', label: 'Unmatched', value: s.unmatched, color: 'bg-muted' }
   ].filter(segment => segment.value > 0)
 })
 </script>
@@ -70,10 +78,10 @@ const breakdown = computed(() => {
         </template>
 
         <template #right>
-          <UButton icon="i-lucide-play" label="Ejecutar conciliación" color="primary" size="sm"
+          <UButton icon="i-lucide-play" label="Run reconciliation" color="primary" size="sm"
             class="hidden sm:inline-flex" :loading="reconciling" @click="runReconciliation" />
           <UButton icon="i-lucide-play" color="primary" size="sm" class="sm:hidden"
-            aria-label="Ejecutar conciliación" :loading="reconciling" @click="runReconciliation" />
+            aria-label="Run reconciliation" :loading="reconciling" @click="runReconciliation" />
           <UColorModeButton />
         </template>
       </UDashboardNavbar>
@@ -84,25 +92,25 @@ const breakdown = computed(() => {
         <!-- Encabezado ejecutivo -->
         <div class="flex flex-col gap-1">
           <h1 class="text-2xl font-semibold tracking-tight text-highlighted">
-            {{ greeting }}, Administrador
+            {{ greeting }}, Administrator
           </h1>
           <p class="text-sm text-muted">
-            La IA enriquece y el motor determinístico concilia.
-            Hoy <span class="font-medium text-success">{{ summary.autoMatchRate }}%</span>
-            se concilió automáticamente.
+            AI enriches and the deterministic engine reconciles.
+            Today <span class="font-medium text-success">{{ summary.autoMatchRate }}%</span>
+            was reconciled automatically.
           </p>
         </div>
 
         <!-- KPIs -->
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-          <DashboardStatCard label="Conciliación automática" :value="`${summary.autoMatchRate}%`" icon="i-lucide-bot"
-            color="primary" caption="Procesado por el motor de IA" :loading="pending" />
-          <DashboardStatCard label="Conciliados" :value="formatNumber(summary.matched)" icon="i-lucide-circle-check"
-            color="success" :caption="`de ${summary.total} facturas`" :loading="pending" />
-          <DashboardStatCard label="Pendientes" :value="formatNumber(summary.pending)" icon="i-lucide-clock"
-            color="warning" caption="Requieren revisión manual" :loading="pending" />
-          <DashboardStatCard label="Documentos totales" :value="formatNumber(totalDocuments)" icon="i-lucide-layers"
-            color="neutral" caption="En los tres pools de conocimiento" :loading="pending" />
+          <DashboardStatCard label="Auto reconciliation" :value="`${summary.autoMatchRate}%`" icon="i-lucide-bot"
+            color="primary" caption="Processed by the AI engine" :loading="pending" />
+          <DashboardStatCard label="Reconciled" :value="formatNumber(summary.matched)" icon="i-lucide-circle-check"
+            color="success" :caption="`of ${summary.total} invoices`" :loading="pending" />
+          <DashboardStatCard label="Pending" :value="formatNumber(summary.pending)" icon="i-lucide-clock"
+            color="warning" caption="Require manual review" :loading="pending" />
+          <DashboardStatCard label="Total documents" :value="formatNumber(totalDocuments)" icon="i-lucide-layers"
+            color="neutral" caption="Across all three knowledge pools" :loading="pending" />
         </div>
 
         <!-- Estado de conciliación (Conciliados) -->
@@ -115,14 +123,14 @@ const breakdown = computed(() => {
               </div>
               <div>
                 <h2 class="text-base font-semibold text-highlighted">
-                  Estado de conciliación
+                  Reconciliation status
                 </h2>
                 <p class="text-xs text-muted">
-                  Resultado determinístico y auditable
+                  Deterministic and auditable outcome
                 </p>
               </div>
             </div>
-            <UButton to="/conciliados" label="Ver conciliados" color="neutral" variant="ghost" size="sm"
+            <UButton to="/conciliados" label="View reconciled" color="neutral" variant="ghost" size="sm"
               trailing-icon="i-lucide-arrow-right" />
           </div>
 
@@ -142,30 +150,30 @@ const breakdown = computed(() => {
         </section>
 
         <!-- Carruseles de los tres inputs -->
-        <DashboardPoolSection title="Pool de Facturas" subtitle="Documentos de venta normalizados"
+        <DashboardPoolSection title="Invoice Pool" subtitle="Normalized sales documents"
           icon="i-lucide-file-text" color="primary" to="/facturas" :items="sortedInvoices" :loading="pending">
           <template #default="{ item }">
             <DashboardInvoiceCard :invoice="item" :status="statusByInvoice.get(item.id)" />
           </template>
         </DashboardPoolSection>
 
-        <DashboardPoolSection title="Pool de Pagos" subtitle="Movimientos recibidos por conciliar"
-          icon="i-lucide-banknote" color="secondary" to="/pagos" :items="payments" :loading="pending">
+        <DashboardPoolSection title="Payment Pool" subtitle="Incoming payments awaiting reconciliation"
+          icon="i-lucide-banknote" color="secondary" to="/pagos" :items="previewPayments" :loading="pending">
           <template #default="{ item }">
             <DashboardPaymentCard :payment="item" :status="paymentStatus(item.id)" />
           </template>
         </DashboardPoolSection>
 
-        <DashboardPoolSection title="Pool de Notas" subtitle="Contexto operativo interpretado por IA"
-          icon="i-lucide-sticky-note" color="warning" to="/notas" :items="notes" :loading="pending"
-          empty-label="Sin notas operativas registradas.">
+        <DashboardPoolSection title="Notes Pool" subtitle="Operational context interpreted by AI"
+          icon="i-lucide-sticky-note" color="warning" to="/notas" :items="previewNotes" :loading="pending"
+          empty-label="No operational notes recorded yet.">
           <template #default="{ item }">
             <DashboardNoteCard :note="item" />
           </template>
         </DashboardPoolSection>
 
         <p class="mt-2 text-center text-xs text-dimmed">
-          Total facturado en el pool: {{ formatCurrency(totalInvoiceAmount) }}
+          Total invoiced in pool: {{ formatCurrency(totalInvoiceAmount) }}
         </p>
       </div>
     </template>
