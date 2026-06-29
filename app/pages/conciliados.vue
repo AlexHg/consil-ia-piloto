@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import type { Invoice, ReconciliationResult } from '~~/shared/types/domain'
+import type {
+  Invoice,
+  ReconciliationResult,
+  ReconciliationReviewLogEntry,
+  ReconciliationStatus
+} from '~~/shared/types/domain'
+import { extractErrorMessage } from '~/utils/pools'
 
 definePageMeta({
   layout: 'dashboard'
@@ -7,6 +13,7 @@ definePageMeta({
 
 useSeoMeta({ title: 'Reconciled' })
 
+const toast = useToast()
 const { invoices } = usePools()
 const { run, running, review, reviewingId } = useReconciliation()
 
@@ -34,6 +41,34 @@ async function submitCorrect() {
   if (ok) correctOpen.value = false
 }
 
+const historyOpen = ref(false)
+const historyTarget = ref<string | null>(null)
+const historyLoading = ref(false)
+const historyEntries = ref<ReconciliationReviewLogEntry[]>([])
+
+/** Abre el audit trail de una factura y carga sus decisiones humanas. */
+async function openHistory(invoiceId: string) {
+  historyTarget.value = invoiceId
+  historyEntries.value = []
+  historyLoading.value = true
+  historyOpen.value = true
+
+  try {
+    historyEntries.value = await $fetch<ReconciliationReviewLogEntry[]>(
+      `/api/reconciliation/${encodeURIComponent(invoiceId)}/reviews`
+    )
+  } catch (error) {
+    toast.add({
+      title: 'Could not load audit trail',
+      description: extractErrorMessage(error),
+      color: 'error',
+      icon: 'i-lucide-x'
+    })
+  } finally {
+    historyLoading.value = false
+  }
+}
+
 const invoiceById = computed(() => {
   const map = new Map<string, Invoice>()
   for (const invoice of invoices.value) {
@@ -49,7 +84,47 @@ const rows = computed(() =>
   }))
 )
 
-const { page, pageSize, total, rangeStart, rangeEnd, paginated } = usePagination(rows)
+// Prioridad de la cola de validación manual: primero lo que más exige
+// atención (Suspicious), luego Review/parciales, y al final lo ya conciliado.
+const QUEUE_ORDER: Record<ReconciliationStatus, number> = {
+  'Suspicious': 0,
+  'Needs Review': 1,
+  'Partial Match': 2,
+  'Unmatched': 3,
+  'Matched': 4
+}
+
+function queueRank(status: ReconciliationStatus): number {
+  return QUEUE_ORDER[status] ?? 5
+}
+
+const {
+  sortKey,
+  direction,
+  sorted: sortedRows,
+  selectItems: sortOptions
+} = usePoolSort(rows, [
+  {
+    value: 'status',
+    label: 'By status',
+    icon: 'i-lucide-flag',
+    compare: (a, b) => queueRank(a.result.status) - queueRank(b.result.status)
+  },
+  {
+    value: 'confidence',
+    label: 'By confidence',
+    icon: 'i-lucide-gauge',
+    compare: (a, b) => a.result.confidence - b.result.confidence
+  },
+  {
+    value: 'amount',
+    label: 'By amount',
+    icon: 'i-lucide-banknote',
+    compare: (a, b) => (a.invoice?.amount ?? 0) - (b.invoice?.amount ?? 0)
+  }
+], { key: 'status', direction: 'asc' })
+
+const { page, pageSize, total, rangeStart, rangeEnd, paginated } = usePagination(sortedRows)
 
 const exportOpen = ref(false)
 
@@ -106,10 +181,17 @@ const exportCsvRows = computed<Record<string, unknown>[]>(() =>
 
     <template #body>
       <div class="flex flex-col gap-4">
-        <p class="text-sm text-muted">
-          Every decision is deterministic, explainable, and auditable.
-          AI only drafts the explanation; it never decides the reconciliation.
-        </p>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <p class="text-sm text-muted">
+            Every decision is deterministic, explainable, and auditable.
+            AI only drafts the explanation; it never decides the reconciliation.
+          </p>
+          <PoolSortControls
+            v-model:sort-key="sortKey"
+            v-model:direction="direction"
+            :options="sortOptions"
+          />
+        </div>
 
         <USkeleton v-if="pending && rows.length === 0" class="h-40 rounded-md" />
 
@@ -178,24 +260,35 @@ const exportCsvRows = computed<Record<string, unknown>[]>(() =>
             </div>
           </div>
 
-          <div v-if="result.status !== 'Matched'" class="flex items-center gap-2">
+          <div class="flex items-center gap-2">
+            <template v-if="result.status !== 'Matched'">
+              <UButton
+                label="Accept"
+                color="primary"
+                size="sm"
+                icon="i-lucide-check"
+                :loading="reviewingId === result.invoiceId"
+                :disabled="reviewingId !== null"
+                @click="review(result.invoiceId, { action: 'accept' })"
+              />
+              <UButton
+                label="Correct"
+                color="neutral"
+                variant="outline"
+                size="sm"
+                icon="i-lucide-pencil"
+                :disabled="reviewingId !== null"
+                @click="openCorrect(result.invoiceId)"
+              />
+            </template>
             <UButton
-              label="Accept"
-              color="primary"
-              size="sm"
-              icon="i-lucide-check"
-              :loading="reviewingId === result.invoiceId"
-              :disabled="reviewingId !== null"
-              @click="review(result.invoiceId, { action: 'accept' })"
-            />
-            <UButton
-              label="Correct"
+              label="History"
               color="neutral"
-              variant="outline"
+              variant="ghost"
               size="sm"
-              icon="i-lucide-pencil"
-              :disabled="reviewingId !== null"
-              @click="openCorrect(result.invoiceId)"
+              icon="i-lucide-history"
+              class="ms-auto"
+              @click="openHistory(result.invoiceId)"
             />
           </div>
         </article>
@@ -238,6 +331,79 @@ const exportCsvRows = computed<Record<string, unknown>[]>(() =>
                 @click="submitCorrect()"
               />
             </div>
+          </template>
+        </UModal>
+
+        <UModal
+          v-model:open="historyOpen"
+          :title="`Audit trail · ${historyTarget}`"
+          description="Every human decision recorded for this reconciliation, newest first."
+          :ui="{ content: 'max-w-xl' }"
+        >
+          <template #body>
+            <div v-if="historyLoading" class="flex flex-col gap-3">
+              <USkeleton class="h-20 rounded-md" />
+              <USkeleton class="h-20 rounded-md" />
+            </div>
+
+            <div
+              v-else-if="historyEntries.length === 0"
+              class="flex flex-col items-center gap-2 py-10 text-center"
+            >
+              <UIcon name="i-lucide-history" class="size-8 text-muted" />
+              <p class="text-sm font-medium text-highlighted">No decisions recorded yet</p>
+              <p class="text-sm text-muted">
+                Accept or correct this reconciliation to start the audit trail.
+              </p>
+            </div>
+
+            <ol v-else class="flex flex-col gap-3">
+              <li
+                v-for="entry in historyEntries"
+                :key="entry.id"
+                class="flex gap-3 p-3 rounded-md bg-elevated/60 ring-1 ring-default"
+              >
+                <UIcon
+                  :name="entry.action === 'accept' ? 'i-lucide-check-circle-2' : 'i-lucide-pencil'"
+                  :class="[
+                    'size-4 mt-0.5 shrink-0',
+                    entry.action === 'accept' ? 'text-success' : 'text-warning'
+                  ]"
+                />
+                <div class="flex flex-col gap-1.5 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-sm font-medium text-highlighted">
+                      {{ entry.action === 'accept' ? 'Accepted' : 'Sent for review' }}
+                    </span>
+                    <span class="text-xs text-muted">by {{ entry.actor }}</span>
+                  </div>
+                  <div
+                    v-if="entry.previousStatus || entry.newStatus"
+                    class="flex items-center gap-1.5 flex-wrap"
+                  >
+                    <UBadge
+                      v-if="entry.previousStatus"
+                      :label="reconciliationLabel(entry.previousStatus)"
+                      :color="reconciliationColor(entry.previousStatus)"
+                      variant="soft"
+                      size="sm"
+                    />
+                    <UIcon name="i-lucide-arrow-right" class="size-3.5 text-muted" />
+                    <UBadge
+                      v-if="entry.newStatus"
+                      :label="reconciliationLabel(entry.newStatus)"
+                      :color="reconciliationColor(entry.newStatus)"
+                      variant="subtle"
+                      size="sm"
+                    />
+                  </div>
+                  <p v-if="entry.comment" class="text-sm text-default">
+                    {{ entry.comment }}
+                  </p>
+                  <span class="text-xs text-muted">{{ formatDateTime(entry.createdAt) }}</span>
+                </div>
+              </li>
+            </ol>
           </template>
         </UModal>
 

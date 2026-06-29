@@ -27,6 +27,20 @@ export function formatDate(value: string): string {
   }).format(date)
 }
 
+/** Igual que `formatDate` pero incluye hora y minutos (útil para el audit trail). */
+export function formatDateTime(value: string): string {
+  if (!value) return '—'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return new Intl.DateTimeFormat('en-US', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date)
+}
+
 /** Convierte una fecha a timestamp comparable (0 si es inválida o vacía). */
 export function dateValue(value: string): number {
   if (!value) return 0
