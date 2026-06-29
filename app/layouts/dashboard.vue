@@ -13,19 +13,19 @@ const navItems = computed<NavigationMenuItem[][]>(() => [
   ],
   [
     {
-      label: 'Facturas',
+      label: 'Invoices',
       icon: 'i-lucide-file-text',
       to: '/facturas',
       badge: invoices.value.length || undefined
     },
     {
-      label: 'Pagos',
+      label: 'Payments',
       icon: 'i-lucide-banknote',
       to: '/pagos',
       badge: payments.value.length || undefined
     },
     {
-      label: 'Notas',
+      label: 'Notes',
       icon: 'i-lucide-sticky-note',
       to: '/notas',
       badge: notes.value.length || undefined
@@ -33,7 +33,7 @@ const navItems = computed<NavigationMenuItem[][]>(() => [
   ],
   [
     {
-      label: 'Conciliados',
+      label: 'Reconciled',
       icon: 'i-lucide-link-2',
       to: '/conciliados',
       badge: summary.value.matched || undefined
@@ -65,6 +65,21 @@ const navItems = computed<NavigationMenuItem[][]>(() => [
       <template #default="{ collapsed }">
         <UNavigationMenu :items="navItems" :collapsed="collapsed" orientation="vertical" tooltip
           :ui="{ link: 'gap-3' }" />
+      </template>
+
+      <template #footer="{ collapsed }">
+        <AdminResetDatabaseButton>
+          <UButton
+            :label="collapsed ? undefined : 'Reset database'"
+            icon="i-lucide-trash-2"
+            color="error"
+            variant="ghost"
+            :block="!collapsed"
+            :square="collapsed"
+            :class="collapsed ? '' : 'justify-start'"
+            aria-label="Reset database"
+          />
+        </AdminResetDatabaseButton>
       </template>
     </UDashboardSidebar>
 
