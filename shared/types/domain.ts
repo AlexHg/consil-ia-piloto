@@ -104,6 +104,22 @@ export interface ReconciliationReviewResult {
 }
 
 /**
+ * Entrada del audit trail (`reconciliation_reviews`): una decisión humana
+ * registrada de forma append-only. La UI la consulta para mostrar el historial
+ * de revisiones de una factura.
+ */
+export interface ReconciliationReviewLogEntry {
+  id: string
+  invoiceId: string
+  action: ReviewAction
+  actor: string
+  previousStatus: ReconciliationStatus | null
+  newStatus: ReconciliationStatus | null
+  comment: string | null
+  createdAt: string
+}
+
+/**
  * Estado de la ejecución más reciente del motor de conciliación.
  *
  * La conciliación se procesa de forma asíncrona (cola pg-boss), por lo que la UI

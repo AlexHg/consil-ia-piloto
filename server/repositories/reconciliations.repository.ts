@@ -16,6 +16,7 @@ import type { ReconciliationsTable } from '../db/types'
 import type {
   ReconciliationResult,
   ReconciliationReviewInput,
+  ReconciliationReviewLogEntry,
   ReconciliationReviewResult,
   ReconciliationStatus,
   ReviewAction
@@ -212,6 +213,43 @@ export async function reviewLatestReconciliation(
       newStatus
     }
   })
+}
+
+/**
+ * Audit trail completo de las decisiones humanas sobre una factura.
+ *
+ * Une `reconciliation_reviews` con `reconciliations` para filtrar por factura y
+ * abarca todas las corridas (no solo la conciliación más reciente). Devuelve las
+ * entradas de la más nueva a la más antigua.
+ */
+export async function listReviewsByInvoice(invoiceId: string): Promise<ReconciliationReviewLogEntry[]> {
+  const rows = await useDb()
+    .selectFrom('reconciliation_reviews as r')
+    .innerJoin('reconciliations as c', 'c.id', 'r.reconciliation_id')
+    .select([
+      'r.id',
+      'c.invoice_id as invoice_id',
+      'r.action',
+      'r.actor',
+      'r.previous_status',
+      'r.new_status',
+      'r.comment',
+      'r.created_at'
+    ])
+    .where('c.invoice_id', '=', invoiceId)
+    .orderBy('r.created_at', 'desc')
+    .execute()
+
+  return rows.map(row => ({
+    id: row.id,
+    invoiceId: row.invoice_id,
+    action: row.action as ReviewAction,
+    actor: row.actor,
+    previousStatus: (row.previous_status as ReconciliationStatus | null) ?? null,
+    newStatus: (row.new_status as ReconciliationStatus | null) ?? null,
+    comment: row.comment,
+    createdAt: new Date(row.created_at as unknown as string).toISOString()
+  }))
 }
 
 export async function findReconciliationsByInvoice(invoiceId: string): Promise<ReconciliationResult[]> {
