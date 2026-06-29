@@ -43,8 +43,7 @@
           <p style="max-width: 820px; margin-top: 18px">
             Conciliación financiera
             <strong style="color: #fff">facturas &harr; pagos</strong> asistida
-            por IA. Motor determinístico, explicable y auditable; la IA solo
-            enriquece, <strong style="color: #fff">nunca decide</strong>.
+            por IA. Motor determinístico con auditoría.
           </p>
           <div
             style="display: flex; gap: 14px; margin-top: 30px; flex-wrap: wrap"
@@ -295,31 +294,36 @@
               "
             >
               <div>
-                <div class="layer" style="margin-bottom: 10px">
-                  <span class="ltag">Browser</span>
+                <div class="layer alt" style="margin-bottom: 9px">
+                  <span class="ltag">Queue</span>
                   <p>
-                    Dashboard Nuxt: pages, components, composables. Solo consume
-                    <span class="mono">/api/*</span>.
+                    <span class="mono">queue.ts</span> (pg-boss) — puerta de
+                    entrada: encola el trabajo y arranca la corrida en segundo
+                    plano.
                   </p>
                 </div>
-                <div class="layer" style="margin-bottom: 10px">
-                  <span class="ltag">API · Nitro</span>
+                <div class="layer" style="margin-bottom: 9px">
+                  <span class="ltag">Service</span>
                   <p>
-                    Endpoints REST delgados: validan input y delegan en
-                    services.
+                    <span class="mono">service.ts</span> — el director: orquesta
+                    la corrida factura por factura y une las piezas.
                   </p>
                 </div>
-                <div class="layer alt" style="margin-bottom: 10px">
-                  <span class="ltag">Services</span>
-                  <p>Ingestion · Evidence · Reconciliation · AI.</p>
+                <div class="layer alt" style="margin-bottom: 9px">
+                  <span class="ltag">Evidence</span>
+                  <p>
+                    <span class="mono">retrieval.ts</span> — acerca
+                    <strong>candidatos</strong> por similitud (pgvector). Solo
+                    acota; no decide.
+                  </p>
                 </div>
-                <div class="layer alt" style="margin-bottom: 10px">
-                  <span class="ltag">Repositories</span>
-                  <p>Acceso a datos tipado (Kysely) sobre los pools.</p>
-                </div>
-                <div class="layer db">
-                  <span class="ltag">Datos</span>
-                  <p>PostgreSQL + pgvector · cola pg-boss en el mismo motor.</p>
+                <div class="layer">
+                  <span class="ltag">Engine</span>
+                  <p>
+                    <span class="mono">engine.ts</span> — el corazón: reglas
+                    <strong>determinísticas</strong> → señales,
+                    <span class="mono">confidence</span> y estado.
+                  </p>
                 </div>
               </div>
               <div style="display: flex; flex-direction: column; gap: 16px">
@@ -844,8 +848,8 @@
             <div
               style="
                 display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 18px;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 14px;
               "
             >
               <div class="card accent">
@@ -876,6 +880,16 @@
                 <ul class="text-sm">
                   <li>Cola gestionada (Redis Streams / SQS)</li>
                   <li>Autenticación y multiusuario real</li>
+                </ul>
+              </div>
+              <div class="card accent">
+                <div class="card-icon">
+                  <i class="fa-solid fa-puzzle-piece"></i>
+                </div>
+                <h3 style="font-size: 16pt">Nuevos módulos</h3>
+                <ul class="text-sm">
+                  <li>Reconciliación humana con selectores</li>
+                  <li>Integración vía API</li>
                 </ul>
               </div>
             </div>
