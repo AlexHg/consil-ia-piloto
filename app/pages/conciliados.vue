@@ -5,7 +5,7 @@ definePageMeta({
   layout: 'dashboard'
 })
 
-useSeoMeta({ title: 'Conciliados' })
+useSeoMeta({ title: 'Reconciled' })
 
 const { invoices } = usePools()
 const { run, running, review, reviewingId } = useReconciliation()
@@ -50,19 +50,50 @@ const rows = computed(() =>
 )
 
 const { page, pageSize, total, rangeStart, rangeEnd, paginated } = usePagination(rows)
+
+const exportOpen = ref(false)
+
+/** Filas planas para el CSV de conciliaciones (estructuras anidadas resumidas). */
+const exportCsvRows = computed<Record<string, unknown>[]>(() =>
+  results.value.map((result) => {
+    const invoice = invoiceById.value.get(result.invoiceId)
+    return {
+      invoiceId: result.invoiceId,
+      vendor: invoice?.vendor ?? '',
+      amount: invoice?.amount ?? '',
+      currency: invoice?.currency ?? '',
+      status: result.status,
+      confidence: result.confidence,
+      remainingBalance: result.remainingBalance ?? '',
+      matchedPaymentIds: result.matchedPaymentIds.join('; '),
+      matchedSignals: result.signals.filter(s => s.matched).map(s => s.label).join('; '),
+      suggestedAction: result.suggestedAction,
+      explanation: result.explanation
+    }
+  })
+)
 </script>
 
 <template>
   <UDashboardPanel id="conciliados">
     <template #header>
-      <UDashboardNavbar title="Conciliados" :ui="{ right: 'gap-2' }">
+      <UDashboardNavbar title="Reconciled" :ui="{ right: 'gap-2' }">
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
         <template #right>
           <UButton
+            icon="i-lucide-download"
+            label="Export"
+            color="neutral"
+            variant="outline"
+            size="sm"
+            :disabled="results.length === 0"
+            @click="exportOpen = true"
+          />
+          <UButton
             icon="i-lucide-refresh-cw"
-            label="Re-ejecutar"
+            label="Re-run"
             color="primary"
             size="sm"
             :loading="running"
@@ -76,8 +107,8 @@ const { page, pageSize, total, rangeStart, rangeEnd, paginated } = usePagination
     <template #body>
       <div class="flex flex-col gap-4">
         <p class="text-sm text-muted">
-          Cada decisión es determinística, explicable y auditable.
-          La IA solo redacta la explicación; nunca decide la conciliación.
+          Every decision is deterministic, explainable, and auditable.
+          AI only drafts the explanation; it never decides the reconciliation.
         </p>
 
         <USkeleton v-if="pending && rows.length === 0" class="h-40 rounded-md" />
@@ -95,7 +126,7 @@ const { page, pageSize, total, rangeStart, rangeEnd, paginated } = usePagination
                 </p>
                 <span class="text-xs text-muted">·</span>
                 <p class="text-sm text-muted truncate">
-                  {{ invoice?.vendor ?? 'Proveedor desconocido' }}
+                  {{ invoice?.vendor ?? 'Unknown vendor' }}
                 </p>
               </div>
               <p v-if="invoice" class="text-lg font-semibold tracking-tight text-highlighted tabular-nums">
@@ -105,7 +136,7 @@ const { page, pageSize, total, rangeStart, rangeEnd, paginated } = usePagination
 
             <div class="flex items-center gap-2">
               <UBadge
-                :label="`${(result.confidence * 100).toFixed(0)}% confianza`"
+                :label="`${(result.confidence * 100).toFixed(0)}% confidence`"
                 color="neutral"
                 variant="soft"
                 size="sm"
@@ -142,14 +173,14 @@ const { page, pageSize, total, rangeStart, rangeEnd, paginated } = usePagination
                 {{ result.explanation }}
               </p>
               <p class="text-xs text-muted">
-                Siguiente acción: {{ result.suggestedAction }}
+                Next action: {{ result.suggestedAction }}
               </p>
             </div>
           </div>
 
           <div v-if="result.status !== 'Matched'" class="flex items-center gap-2">
             <UButton
-              label="Aceptar"
+              label="Accept"
               color="primary"
               size="sm"
               icon="i-lucide-check"
@@ -158,7 +189,7 @@ const { page, pageSize, total, rangeStart, rangeEnd, paginated } = usePagination
               @click="review(result.invoiceId, { action: 'accept' })"
             />
             <UButton
-              label="Corregir"
+              label="Correct"
               color="neutral"
               variant="outline"
               size="sm"
@@ -179,17 +210,17 @@ const { page, pageSize, total, rangeStart, rangeEnd, paginated } = usePagination
 
         <UModal
           v-model:open="correctOpen"
-          title="Corregir conciliación"
-          :description="`Devuelve ${correctTarget} a revisión manual y registra el motivo en la auditoría.`"
+          title="Correct reconciliation"
+          :description="`Returns ${correctTarget} to manual review and logs the reason in the audit trail.`"
           :ui="{ content: 'max-w-xl' }"
         >
           <template #body>
-            <UFormField label="Motivo de la corrección" name="comment" required>
+            <UFormField label="Reason for correction" name="comment" required>
               <UTextarea
                 v-model="correctComment"
                 :rows="4"
                 autoresize
-                placeholder="Ej. La moneda del pago no coincide con la factura; requiere validación manual."
+                placeholder="E.g. Payment currency does not match the invoice; requires manual validation."
                 class="w-full"
               />
             </UFormField>
@@ -197,9 +228,9 @@ const { page, pageSize, total, rangeStart, rangeEnd, paginated } = usePagination
 
           <template #footer>
             <div class="flex items-center justify-end gap-2 w-full">
-              <UButton label="Cancelar" color="neutral" variant="ghost" @click="correctOpen = false" />
+              <UButton label="Cancel" color="neutral" variant="ghost" @click="correctOpen = false" />
               <UButton
-                label="Enviar a revisión"
+                label="Send for review"
                 icon="i-lucide-pencil"
                 color="primary"
                 :loading="reviewingId === correctTarget"
@@ -209,6 +240,15 @@ const { page, pageSize, total, rangeStart, rangeEnd, paginated } = usePagination
             </div>
           </template>
         </UModal>
+
+        <PoolExportModal
+          v-model:open="exportOpen"
+          title="Export reconciled items"
+          description="Download the reconciliation results as a JSON or CSV file."
+          filename="reconciled"
+          :json-data="results"
+          :csv-rows="exportCsvRows"
+        />
       </div>
     </template>
   </UDashboardPanel>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
-import type { PoolResource } from '~/utils/pools'
+import { POOL_META, type PoolResource } from '~/utils/pools'
 
 const props = defineProps<{
   resource: PoolResource
@@ -8,18 +8,36 @@ const props = defineProps<{
 
 const createOpen = ref(false)
 const importOpen = ref(false)
+const exportOpen = ref(false)
+
+const { invoices, payments, notes } = usePools()
 
 const createLabel = computed(() => {
   switch (props.resource) {
     case 'invoices':
-      return 'Nueva factura'
+      return 'New invoice'
     case 'payments':
-      return 'Nuevo pago'
+      return 'New payment'
     case 'notes':
-      return 'Nueva nota'
+      return 'New note'
   }
-  return 'Crear'
+  return 'Create'
 })
+
+/** Registros del pool activo, usados tanto para JSON como para CSV. */
+const exportRows = computed<Record<string, unknown>[]>(() => {
+  switch (props.resource) {
+    case 'invoices':
+      return invoices.value as unknown as Record<string, unknown>[]
+    case 'payments':
+      return payments.value as unknown as Record<string, unknown>[]
+    case 'notes':
+      return notes.value as unknown as Record<string, unknown>[]
+  }
+  return []
+})
+
+const exportFilename = computed(() => POOL_META[props.resource].plural.toLowerCase())
 
 const items = computed<DropdownMenuItem[]>(() => [
   {
@@ -28,9 +46,14 @@ const items = computed<DropdownMenuItem[]>(() => [
     onSelect: () => { createOpen.value = true }
   },
   {
-    label: 'Importación',
+    label: 'Import',
     icon: 'i-lucide-upload',
     onSelect: () => { importOpen.value = true }
+  },
+  {
+    label: 'Export',
+    icon: 'i-lucide-download',
+    onSelect: () => { exportOpen.value = true }
   }
 ])
 </script>
@@ -44,7 +67,7 @@ const items = computed<DropdownMenuItem[]>(() => [
     >
       <UButton
         icon="i-lucide-plus"
-        label="Agregar"
+        label="Add"
         trailing-icon="i-lucide-chevron-down"
         color="primary"
         size="sm"
@@ -56,5 +79,14 @@ const items = computed<DropdownMenuItem[]>(() => [
     <PoolNoteForm v-else-if="resource === 'notes'" v-model:open="createOpen" />
 
     <PoolImportModal :resource="resource" v-model:open="importOpen" />
+
+    <PoolExportModal
+      v-model:open="exportOpen"
+      :title="`Export ${POOL_META[resource].plural.toLowerCase()}`"
+      description="Download the current pool as a JSON or CSV file."
+      :filename="exportFilename"
+      :json-data="exportRows"
+      :csv-rows="exportRows"
+    />
   </div>
 </template>
