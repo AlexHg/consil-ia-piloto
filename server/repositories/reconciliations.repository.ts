@@ -180,7 +180,7 @@ export async function reviewLatestReconciliation(
     if (!target) {
       throw createError({
         statusCode: 404,
-        statusMessage: `No existe una conciliación para la factura ${invoiceId}.`
+        statusMessage: `No reconciliation exists for invoice ${invoiceId}.`
       })
     }
 

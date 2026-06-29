@@ -48,12 +48,12 @@ async function run(): Promise<void> {
     bulkInsertNotes(notes)
   ])
 
-  console.log(`✓ Seed completado: ${invoicesInserted.length} facturas, ${paymentsInserted.length} pagos, ${notesInserted.length} notas`)
+  console.log(`✓ Seed complete: ${invoicesInserted.length} invoices, ${paymentsInserted.length} payments, ${notesInserted.length} notes`)
 
   await db.destroy()
 }
 
 run().catch((error) => {
-  console.error('Falló el seed:', error)
+  console.error('Seed failed:', error)
   process.exit(1)
 })

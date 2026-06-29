@@ -30,7 +30,7 @@ type GlobalWithBoss = typeof globalThis & {
 async function create(): Promise<PgBoss> {
   const connectionString = process.env.DATABASE_URL
   if (!connectionString) {
-    throw new Error('DATABASE_URL no está definida. Revisa tu archivo .env.')
+    throw new Error('DATABASE_URL is not defined. Check your .env file.')
   }
 
   const boss = new PgBoss({

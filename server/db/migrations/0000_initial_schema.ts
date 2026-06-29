@@ -10,7 +10,8 @@
  * inicializar el contenedor; esta migración asume que ya existe.
  */
 
-import { Kysely, sql } from 'kysely'
+import type { Kysely } from "kysely";
+import { sql } from "kysely";
 
 export async function up(db: Kysely<unknown>): Promise<void> {
   await sql`CREATE EXTENSION IF NOT EXISTS vector`.execute(db)

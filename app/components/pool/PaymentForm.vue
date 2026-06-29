@@ -33,8 +33,8 @@ watch(open, (value) => {
 
 function validate(s: typeof state): FormError[] {
   const errors: FormError[] = []
-  if (!s.payerName?.trim()) errors.push({ name: 'payerName', message: 'Requerido' })
-  if (s.amount == null || Number(s.amount) <= 0) errors.push({ name: 'amount', message: 'Debe ser mayor a 0' })
+  if (!s.payerName?.trim()) errors.push({ name: 'payerName', message: 'Required' })
+  if (s.amount == null || Number(s.amount) <= 0) errors.push({ name: 'amount', message: 'Must be greater than 0' })
   return errors
 }
 
@@ -44,7 +44,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     const payment = await $fetch<Payment>('/api/payments', { method: 'POST', body: event.data })
     await refreshNuxtData(POOL_META.payments.refreshKeys)
     toast.add({
-      title: 'Pago registrado',
+      title: 'Payment recorded',
       description: `${payment.id} · ${payment.payerName}`,
       color: 'success',
       icon: 'i-lucide-check'
@@ -52,7 +52,7 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     open.value = false
   } catch (error) {
     toast.add({
-      title: 'No se pudo registrar el pago',
+      title: 'Could not record payment',
       description: extractErrorMessage(error),
       color: 'error',
       icon: 'i-lucide-x'
@@ -66,8 +66,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 <template>
   <UModal
     v-model:open="open"
-    title="Nuevo pago"
-    description="Alta manual de un movimiento en el pool de pagos."
+    title="New payment"
+    description="Manually add a transaction to the payment pool."
     :ui="{ content: 'max-w-xl' }"
   >
     <template #body>
@@ -78,27 +78,27 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         class="grid grid-cols-1 sm:grid-cols-2 gap-4"
         @submit="onSubmit"
       >
-        <UFormField label="Pagador" name="payerName" required class="sm:col-span-2">
+        <UFormField label="Payer" name="payerName" required class="sm:col-span-2">
           <UInput v-model="state.payerName" placeholder="ACME Logistics" class="w-full" />
         </UFormField>
 
-        <UFormField label="Monto" name="amount" required>
+        <UFormField label="Amount" name="amount" required>
           <UInput v-model="state.amount" type="number" step="0.01" min="0" placeholder="1250.00" class="w-full" />
         </UFormField>
 
-        <UFormField label="Moneda" name="currency">
+        <UFormField label="Currency" name="currency">
           <USelect v-model="state.currency" :items="currencyItems" class="w-full" />
         </UFormField>
 
-        <UFormField label="Fecha de pago" name="paymentDate">
+        <UFormField label="Payment date" name="paymentDate">
           <UInput v-model="state.paymentDate" type="date" class="w-full" />
         </UFormField>
 
-        <UFormField label="ID (opcional)" name="id" hint="Se genera automáticamente">
+        <UFormField label="ID (optional)" name="id" hint="Auto-generated if empty">
           <UInput v-model="state.id" placeholder="PAY-2001" class="w-full" />
         </UFormField>
 
-        <UFormField label="Referencia" name="reference" class="sm:col-span-2">
+        <UFormField label="Reference" name="reference" class="sm:col-span-2">
           <UInput v-model="state.reference" placeholder="Payment for INV-2001" class="w-full" />
         </UFormField>
       </UForm>
@@ -106,9 +106,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
     <template #footer>
       <div class="flex items-center justify-end gap-2 w-full">
-        <UButton label="Cancelar" color="neutral" variant="ghost" @click="open = false" />
+        <UButton label="Cancel" color="neutral" variant="ghost" @click="open = false" />
         <UButton
-          label="Registrar pago"
+          label="Record payment"
           icon="i-lucide-plus"
           color="primary"
           :loading="submitting"

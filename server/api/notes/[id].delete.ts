@@ -8,13 +8,13 @@ export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
 
   if (!id) {
-    throw createError({ statusCode: 400, statusMessage: 'Falta el identificador de la nota.' })
+    throw createError({ statusCode: 400, statusMessage: 'Note identifier is required.' })
   }
 
   const deleted = await removeNote(id)
 
   if (!deleted) {
-    throw createError({ statusCode: 404, statusMessage: `No se encontró la nota ${id}.` })
+    throw createError({ statusCode: 404, statusMessage: `Note ${id} was not found.` })
   }
 
   return { id, deleted: true }

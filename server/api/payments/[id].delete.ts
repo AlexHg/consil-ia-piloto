@@ -9,13 +9,13 @@ export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
 
   if (!id) {
-    throw createError({ statusCode: 400, statusMessage: 'Falta el identificador del pago.' })
+    throw createError({ statusCode: 400, statusMessage: 'Payment identifier is required.' })
   }
 
   const deleted = await removePayment(id)
 
   if (!deleted) {
-    throw createError({ statusCode: 404, statusMessage: `No se encontró el pago ${id}.` })
+    throw createError({ statusCode: 404, statusMessage: `Payment ${id} was not found.` })
   }
 
   return { id, deleted: true }

@@ -12,8 +12,8 @@ const submitting = ref(false)
 const sourceItems = [
   { label: 'Email', value: 'email' },
   { label: 'Slack', value: 'slack' },
-  { label: 'Operaciones', value: 'ops-note' },
-  { label: 'Otro', value: 'unknown' }
+  { label: 'Operations', value: 'ops-note' },
+  { label: 'Other', value: 'unknown' }
 ]
 
 function emptyState() {
@@ -34,7 +34,7 @@ watch(open, (value) => {
 
 function validate(s: typeof state): FormError[] {
   const errors: FormError[] = []
-  if (!s.text?.trim()) errors.push({ name: 'text', message: 'Requerido' })
+  if (!s.text?.trim()) errors.push({ name: 'text', message: 'Required' })
   return errors
 }
 
@@ -44,15 +44,15 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
     await $fetch<OperationalNote>('/api/notes', { method: 'POST', body: event.data })
     await refreshNuxtData(POOL_META.notes.refreshKeys)
     toast.add({
-      title: 'Nota creada',
-      description: 'La IA podrá interpretarla en la próxima conciliación.',
+      title: 'Note created',
+      description: 'AI will interpret it on the next reconciliation run.',
       color: 'success',
       icon: 'i-lucide-check'
     })
     open.value = false
   } catch (error) {
     toast.add({
-      title: 'No se pudo crear la nota',
+      title: 'Could not create note',
       description: extractErrorMessage(error),
       color: 'error',
       icon: 'i-lucide-x'
@@ -66,8 +66,8 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 <template>
   <UModal
     v-model:open="open"
-    title="Nueva nota operativa"
-    description="Contexto que la IA usará para enriquecer la conciliación."
+    title="New operational note"
+    description="Context that AI will use to enrich reconciliation."
     :ui="{ content: 'max-w-xl' }"
   >
     <template #body>
@@ -78,16 +78,16 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
         class="flex flex-col gap-4"
         @submit="onSubmit"
       >
-        <UFormField label="Origen" name="source">
+        <UFormField label="Source" name="source">
           <USelect v-model="state.source" :items="sourceItems" class="w-full" />
         </UFormField>
 
-        <UFormField label="Texto" name="text" required>
+        <UFormField label="Text" name="text" required>
           <UTextarea
             v-model="state.text"
             :rows="5"
             autoresize
-            placeholder="ACME Logistics confirmó el pago de la factura INV-2001."
+            placeholder="ACME Logistics confirmed payment for invoice INV-2001."
             class="w-full"
           />
         </UFormField>
@@ -96,9 +96,9 @@ async function onSubmit(event: FormSubmitEvent<typeof state>) {
 
     <template #footer>
       <div class="flex items-center justify-end gap-2 w-full">
-        <UButton label="Cancelar" color="neutral" variant="ghost" @click="open = false" />
+        <UButton label="Cancel" color="neutral" variant="ghost" @click="open = false" />
         <UButton
-          label="Crear nota"
+          label="Create note"
           icon="i-lucide-plus"
           color="primary"
           :loading="submitting"

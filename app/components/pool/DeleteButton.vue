@@ -29,15 +29,15 @@ async function confirmDelete() {
     open.value = false
     emit('deleted')
     toast.add({
-      title: 'Elemento eliminado',
-      description: `${props.label ?? props.id} se quitó del pool de ${meta.value.plural.toLowerCase()}.`,
+      title: 'Item deleted',
+      description: `${props.label ?? props.id} was removed from the ${meta.value.plural.toLowerCase()} pool.`,
       color: 'success',
       icon: 'i-lucide-trash-2'
     })
     await refreshNuxtData(meta.value.refreshKeys)
   } catch (error) {
     toast.add({
-      title: 'No se pudo eliminar',
+      title: 'Could not delete',
       description: extractErrorMessage(error),
       color: 'error',
       icon: 'i-lucide-x'
@@ -51,8 +51,8 @@ async function confirmDelete() {
 <template>
   <UModal
     v-model:open="open"
-    title="Eliminar del pool"
-    description="Esta acción es permanente y no se puede deshacer."
+    title="Remove from pool"
+    description="This action is permanent and cannot be undone."
     :ui="{ content: 'max-w-md' }"
   >
     <slot>
@@ -61,23 +61,23 @@ async function confirmDelete() {
         color="neutral"
         variant="ghost"
         size="xs"
-        :aria-label="`Eliminar ${label ?? id}`"
+        :aria-label="`Delete ${label ?? id}`"
       />
     </slot>
 
     <template #body>
       <p class="text-sm text-default leading-relaxed">
-        ¿Seguro que deseas eliminar
+        Are you sure you want to delete
         <span class="font-semibold text-highlighted">{{ label ?? id }}</span>?
-        Se quitará de los pools de conocimiento y de cualquier conciliación asociada.
+        It will be removed from the knowledge pools and any associated reconciliation.
       </p>
     </template>
 
     <template #footer>
       <div class="flex items-center justify-end gap-2 w-full">
-        <UButton label="Cancelar" color="neutral" variant="ghost" @click="open = false" />
+        <UButton label="Cancel" color="neutral" variant="ghost" @click="open = false" />
         <UButton
-          label="Eliminar"
+          label="Delete"
           icon="i-lucide-trash-2"
           color="error"
           :loading="deleting"

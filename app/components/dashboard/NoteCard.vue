@@ -16,7 +16,7 @@ const referencedIds = computed(() => props.note.referencedIds ?? [])
   <UModal
     v-model:open="open"
     :title="meta.label"
-    :description="interpreted ? 'Nota interpretada por la IA' : 'Nota pendiente de interpretación'"
+    :description="interpreted ? 'Note interpreted by AI' : 'Note pending interpretation'"
     :ui="{ content: 'max-w-lg' }"
   >
     <article
@@ -44,7 +44,7 @@ const referencedIds = computed(() => props.note.referencedIds ?? [])
         :class="interpreted ? 'text-primary' : 'text-dimmed'"
       >
         <UIcon :name="interpreted ? 'i-lucide-sparkles' : 'i-lucide-clock'" class="size-3.5" />
-        {{ interpreted ? 'Interpretada por IA' : 'Pendiente de interpretación' }}
+        {{ interpreted ? 'Interpreted by AI' : 'Pending interpretation' }}
       </div>
     </article>
 
@@ -52,7 +52,7 @@ const referencedIds = computed(() => props.note.referencedIds ?? [])
       <div class="flex flex-col gap-5">
         <div class="flex flex-col gap-1.5">
           <span class="text-xs font-medium text-muted uppercase tracking-wide">
-            Texto original
+            Original text
           </span>
           <p class="text-sm text-default leading-relaxed whitespace-pre-line">
             {{ note.text }}
@@ -65,7 +65,7 @@ const referencedIds = computed(() => props.note.referencedIds ?? [])
         >
           <span class="inline-flex items-center gap-1.5 text-xs font-medium text-primary uppercase tracking-wide">
             <UIcon name="i-lucide-sparkles" class="size-3.5" />
-            Interpretación de IA
+            AI interpretation
           </span>
           <p class="text-sm text-default leading-relaxed">
             {{ note.interpretedSummary }}
@@ -77,14 +77,14 @@ const referencedIds = computed(() => props.note.referencedIds ?? [])
         >
           <UIcon name="i-lucide-clock" class="size-4 mt-0.5 shrink-0" />
           <span>
-            La IA aún no ha interpretado esta nota. Se enriquecerá automáticamente
-            en la próxima conciliación.
+            AI has not interpreted this note yet. It will be enriched automatically
+            on the next reconciliation run.
           </span>
         </div>
 
         <div v-if="referencedIds.length" class="flex flex-col gap-2">
           <span class="text-xs font-medium text-muted uppercase tracking-wide">
-            Documentos referenciados
+            Referenced documents
           </span>
           <div class="flex flex-wrap gap-1.5">
             <UBadge
@@ -106,13 +106,13 @@ const referencedIds = computed(() => props.note.referencedIds ?? [])
           v-if="note.id"
           resource="notes"
           :id="note.id"
-          label="esta nota"
+          label="this note"
           @deleted="open = false"
         >
-          <UButton label="Eliminar" icon="i-lucide-trash-2" color="error" variant="ghost" size="sm" />
+          <UButton label="Delete" icon="i-lucide-trash-2" color="error" variant="ghost" size="sm" />
         </PoolDeleteButton>
         <span v-else />
-        <UButton label="Cerrar" color="neutral" variant="ghost" @click="open = false" />
+        <UButton label="Close" color="neutral" variant="ghost" @click="open = false" />
       </div>
     </template>
   </UModal>

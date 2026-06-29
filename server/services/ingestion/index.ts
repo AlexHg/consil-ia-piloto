@@ -65,7 +65,7 @@ function readRows(body: ImportBody): { rows: Record<string, unknown>[], format: 
   if (body?.csv && body.csv.trim()) {
     return { rows: parseCsv(body.csv), format: 'csv' }
   }
-  throw createError({ statusCode: 422, statusMessage: 'El contenido a importar está vacío.' })
+  throw createError({ statusCode: 422, statusMessage: 'Import content is empty.' })
 }
 
 function parseJsonRows(json: string): Record<string, unknown>[] {
@@ -73,7 +73,7 @@ function parseJsonRows(json: string): Record<string, unknown>[] {
   try {
     data = JSON.parse(json)
   } catch {
-    throw createError({ statusCode: 422, statusMessage: 'El contenido JSON no es válido.' })
+    throw createError({ statusCode: 422, statusMessage: 'JSON content is not valid.' })
   }
   const list = Array.isArray(data) ? data : [data]
   return list.filter(

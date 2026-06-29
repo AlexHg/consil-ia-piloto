@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   const result = await importPayments(body ?? {})
 
   if (result.created === 0) {
-    throw createError({ statusCode: 422, statusMessage: 'No se encontraron pagos válidos en el archivo.' })
+    throw createError({ statusCode: 422, statusMessage: 'No valid payments were found in the file.' })
   }
 
   await enqueueEnrichment('import', { debounce: true })

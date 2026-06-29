@@ -3,7 +3,7 @@ definePageMeta({
   layout: 'dashboard'
 })
 
-useSeoMeta({ title: 'Pagos' })
+useSeoMeta({ title: 'Payments' })
 
 const { payments } = usePools()
 const { paymentStatus } = usePaymentStatuses()
@@ -16,19 +16,19 @@ const {
 } = usePoolSort(payments, [
   {
     value: 'date',
-    label: 'Por fecha',
+    label: 'By date',
     icon: 'i-lucide-calendar',
     compare: (a, b) => dateValue(a.paymentDate) - dateValue(b.paymentDate)
   },
   {
     value: 'amount',
-    label: 'Por monto',
+    label: 'By amount',
     icon: 'i-lucide-banknote',
     compare: (a, b) => a.amount - b.amount
   },
   {
     value: 'status',
-    label: 'Por estado',
+    label: 'By status',
     icon: 'i-lucide-link-2',
     compare: (a, b) => paymentStatusRank(paymentStatus(a.id)) - paymentStatusRank(paymentStatus(b.id))
   }
@@ -40,7 +40,7 @@ const { page, pageSize, total, rangeStart, rangeEnd, paginated } = usePagination
 <template>
   <UDashboardPanel id="pagos">
     <template #header>
-      <UDashboardNavbar title="Pagos" :ui="{ right: 'gap-2' }">
+      <UDashboardNavbar title="Payments" :ui="{ right: 'gap-2' }">
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
@@ -55,7 +55,7 @@ const { page, pageSize, total, rangeStart, rangeEnd, paginated } = usePagination
       <div class="flex flex-col gap-6">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <p class="text-sm text-muted">
-            Pool de pagos normalizados. {{ payments.length }} movimientos.
+            Normalized payment pool. {{ payments.length }} transactions.
           </p>
           <PoolSortControls
             v-model:sort-key="sortKey"

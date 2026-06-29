@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   const result = await importNotes(body ?? {})
 
   if (result.created === 0) {
-    throw createError({ statusCode: 422, statusMessage: 'No se encontraron notas válidas en el archivo.' })
+    throw createError({ statusCode: 422, statusMessage: 'No valid notes were found in the file.' })
   }
 
   await enqueueEnrichment('import', { debounce: true })

@@ -29,7 +29,7 @@ export default defineNitroPlugin(async (nitroApp) => {
       await enqueueEnrichment('startup')
     }
 
-    console.info('[pg-boss] colas y workers (enriquecimiento + conciliación) listos')
+    console.info('[pg-boss] queues and workers (enrichment + reconciliation) ready')
   } catch (error) {
     // No tumbamos el arranque del servidor si la DB aún no está disponible;
     // useBoss() reintentará la creación en la próxima llamada.

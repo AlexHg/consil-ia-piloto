@@ -23,7 +23,7 @@ async function run(): Promise<void> {
 
   const connectionString = process.env.DATABASE_URL
   if (!connectionString) {
-    throw new Error('DATABASE_URL no está definida. Revisa tu archivo .env.')
+    throw new Error('DATABASE_URL is not defined. Check your .env file.')
   }
 
   const direction = process.argv[2] === 'down' ? 'down' : 'up'
@@ -48,14 +48,14 @@ async function run(): Promise<void> {
 
   for (const result of results ?? []) {
     if (result.status === 'Success') {
-      console.log(`✓ Migración "${result.migrationName}" (${result.direction}) aplicada`)
+      console.log(`✓ Migration "${result.migrationName}" (${result.direction}) applied`)
     } else if (result.status === 'Error') {
       console.error(`✗ Error al aplicar "${result.migrationName}"`)
     }
   }
 
   if (error) {
-    console.error('Falló la migración:', error)
+    console.error('Migration failed:', error)
     await db.destroy()
     process.exit(1)
   }

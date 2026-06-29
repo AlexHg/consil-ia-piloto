@@ -27,7 +27,7 @@ function toggleDirection() {
       color="neutral"
       variant="outline"
       size="sm"
-      :aria-label="direction === 'asc' ? 'Orden ascendente' : 'Orden descendente'"
+      :aria-label="direction === 'asc' ? 'Ascending order' : 'Descending order'"
       @click="toggleDirection"
     />
   </div>

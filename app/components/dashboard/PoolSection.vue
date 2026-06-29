@@ -14,7 +14,7 @@ withDefaults(defineProps<{
   emptyLabel?: string
 }>(), {
   color: 'primary',
-  emptyLabel: 'Sin documentos en este pool todavía.'
+  emptyLabel: 'No documents in this pool yet.'
 })
 
 defineSlots<{
@@ -52,7 +52,7 @@ const colorClasses: Record<UiColor, string> = {
         </div>
       </div>
 
-      <UButton v-if="to" :to="to" label="Ver todos" color="neutral" variant="ghost" size="sm"
+      <UButton v-if="to" :to="to" label="View all" color="neutral" variant="ghost" size="sm"
         trailing-icon="i-lucide-arrow-right" class="shrink-0" />
     </div>
 

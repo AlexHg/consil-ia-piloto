@@ -2,7 +2,7 @@ import type { ReconciliationStatus } from '~~/shared/types/domain'
 
 export function formatCurrency(amount: number, currency = 'USD'): string {
   try {
-    return new Intl.NumberFormat('es-MX', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency,
       maximumFractionDigits: 2
@@ -13,14 +13,14 @@ export function formatCurrency(amount: number, currency = 'USD'): string {
 }
 
 export function formatNumber(value: number): string {
-  return new Intl.NumberFormat('es-MX').format(value)
+  return new Intl.NumberFormat('en-US').format(value)
 }
 
 export function formatDate(value: string): string {
   if (!value) return '—'
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
-  return new Intl.DateTimeFormat('es-MX', {
+  return new Intl.DateTimeFormat('en-US', {
     day: '2-digit',
     month: 'short',
     year: 'numeric'
@@ -54,16 +54,16 @@ export function reconciliationColor(status: ReconciliationStatus): UiColor {
 export function reconciliationLabel(status: ReconciliationStatus): string {
   switch (status) {
     case 'Matched':
-      return 'Conciliado'
+      return 'Matched'
     case 'Partial Match':
-      return 'Parcial'
+      return 'Partial'
     case 'Needs Review':
-      return 'Revisión'
+      return 'Review'
     case 'Suspicious':
-      return 'Sospechoso'
+      return 'Suspicious'
     case 'Unmatched':
     default:
-      return 'Sin conciliar'
+      return 'Unmatched'
   }
 }
 
@@ -94,16 +94,16 @@ export function reconciliationRank(status?: ReconciliationStatus): number {
 export function paymentStatusLabel(status: ReconciliationStatus): string {
   switch (status) {
     case 'Matched':
-      return 'Aplicado'
+      return 'Applied'
     case 'Partial Match':
-      return 'Parcial'
+      return 'Partial'
     case 'Needs Review':
-      return 'Revisión'
+      return 'Review'
     case 'Suspicious':
-      return 'Sospechoso'
+      return 'Suspicious'
     case 'Unmatched':
     default:
-      return 'Huérfano'
+      return 'Orphan'
   }
 }
 
@@ -134,7 +134,7 @@ export function paymentStatusRank(status?: ReconciliationStatus): number {
 const NOTE_SOURCE_META: Record<string, { label: string, icon: string }> = {
   email: { label: 'Email', icon: 'i-lucide-mail' },
   slack: { label: 'Slack', icon: 'i-lucide-message-square' },
-  'ops-note': { label: 'Operaciones', icon: 'i-lucide-clipboard-list' }
+  'ops-note': { label: 'Operations', icon: 'i-lucide-clipboard-list' }
 }
 
 export function noteSourceMeta(source: string): { label: string, icon: string } {

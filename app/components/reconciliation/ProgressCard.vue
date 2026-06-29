@@ -67,7 +67,7 @@ const percentLabel = computed(() => `${Math.round(progress.value.percent)}%`)
               color="neutral"
               variant="ghost"
               size="xs"
-              aria-label="Ocultar progreso"
+              aria-label="Hide progress"
               class="-mr-1.5 -mt-1"
               @click="dismissProgress"
             />

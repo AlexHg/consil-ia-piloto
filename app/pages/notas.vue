@@ -3,7 +3,7 @@ definePageMeta({
   layout: 'dashboard'
 })
 
-useSeoMeta({ title: 'Notas' })
+useSeoMeta({ title: 'Notes' })
 
 const { notes } = usePools()
 
@@ -17,13 +17,13 @@ const {
 } = usePoolSort(notes, [
   {
     value: 'source',
-    label: 'Por fuente',
+    label: 'By source',
     icon: 'i-lucide-inbox',
     compare: (a, b) => a.source.localeCompare(b.source)
   },
   {
     value: 'text',
-    label: 'Por texto',
+    label: 'By text',
     icon: 'i-lucide-text',
     compare: (a, b) => a.text.localeCompare(b.text)
   }
@@ -35,7 +35,7 @@ const { page, pageSize, total, rangeStart, rangeEnd, paginated } = usePagination
 <template>
   <UDashboardPanel id="notas">
     <template #header>
-      <UDashboardNavbar title="Notas" :ui="{ right: 'gap-2' }">
+      <UDashboardNavbar title="Notes" :ui="{ right: 'gap-2' }">
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
@@ -50,7 +50,7 @@ const { page, pageSize, total, rangeStart, rangeEnd, paginated } = usePagination
       <div class="flex flex-col gap-6">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <p class="text-sm text-muted">
-            Contexto operativo interpretado por IA. {{ notes.length }} notas.
+            Operational context interpreted by AI. {{ notes.length }} notes.
           </p>
           <PoolSortControls
             v-model:sort-key="sortKey"

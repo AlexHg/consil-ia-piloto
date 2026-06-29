@@ -35,7 +35,7 @@ function downloadSample(format: ImportFormat) {
 
 async function onImport() {
   if (!file.value) {
-    toast.add({ title: 'Selecciona un archivo CSV o JSON', color: 'warning', icon: 'i-lucide-triangle-alert' })
+    toast.add({ title: 'Select a CSV or JSON file', color: 'warning', icon: 'i-lucide-triangle-alert' })
     return
   }
 
@@ -52,15 +52,15 @@ async function onImport() {
 
     await refreshNuxtData(meta.value.refreshKeys)
     toast.add({
-      title: 'Importación completada',
-      description: `${result.created} ${result.created === 1 ? 'registro importado' : 'registros importados'}.`,
+      title: 'Import complete',
+      description: `${result.created} ${result.created === 1 ? 'record imported' : 'records imported'}.`,
       color: 'success',
       icon: 'i-lucide-check'
     })
     open.value = false
   } catch (error) {
     toast.add({
-      title: 'No se pudo importar el archivo',
+      title: 'Could not import file',
       description: extractErrorMessage(error),
       color: 'error',
       icon: 'i-lucide-x'
@@ -74,8 +74,8 @@ async function onImport() {
 <template>
   <UModal
     v-model:open="open"
-    :title="`Importar ${meta.plural.toLowerCase()} desde CSV o JSON`"
-    description="Sube un archivo .csv o .json normalizado. Cada fila u objeto se convierte en un registro del pool."
+    :title="`Import ${meta.plural.toLowerCase()} from CSV or JSON`"
+    description="Upload a normalized .csv or .json file. Each row or object becomes a pool record."
     :ui="{ content: 'max-w-xl' }"
   >
     <template #body>
@@ -85,10 +85,10 @@ async function onImport() {
             <UIcon name="i-lucide-file-down" class="size-5 mt-0.5 text-primary shrink-0" />
             <div class="min-w-0">
               <p class="text-sm font-medium text-highlighted">
-                ¿No sabes el formato?
+                Don't know the format?
               </p>
               <p class="text-xs text-muted">
-                Descarga una plantilla con las columnas y datos de ejemplo.
+                Download a template with columns and sample data.
               </p>
             </div>
           </div>
@@ -114,7 +114,7 @@ async function onImport() {
 
         <div class="flex flex-col gap-2">
           <p class="text-xs font-medium text-muted uppercase tracking-wide">
-            Campos esperados
+            Expected fields
           </p>
           <div class="flex flex-wrap gap-1.5">
             <UBadge
@@ -133,8 +133,8 @@ async function onImport() {
           v-model="file"
           accept=".csv,.json,text/csv,application/json"
           icon="i-lucide-upload"
-          label="Arrastra tu archivo CSV o JSON aquí o haz clic para buscar"
-          description="Formato .csv (cabecera de columnas) o .json (array de objetos)"
+          label="Drag your CSV or JSON file here or click to browse"
+          description="Format: .csv (column header) or .json (array of objects)"
           class="min-h-40"
         />
       </div>
@@ -143,13 +143,13 @@ async function onImport() {
     <template #footer>
       <div class="flex items-center justify-end gap-2 w-full">
         <UButton
-          label="Cancelar"
+          label="Cancel"
           color="neutral"
           variant="ghost"
           @click="open = false"
         />
         <UButton
-          label="Importar"
+          label="Import"
           icon="i-lucide-upload"
           color="primary"
           :loading="submitting"

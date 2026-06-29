@@ -100,31 +100,31 @@ export function reconcileInvoice(
   const signals: EvidenceSignal[] = [
     {
       key: 'reference',
-      label: 'Referencia coincidente',
+      label: 'Matching reference',
       weight: 0.45,
       matched: hasReference,
       detail: hasReference ? candidates.map(p => p.reference).filter(Boolean).join(' · ') : undefined
     },
     {
       key: 'amount',
-      label: amountExact ? 'Monto exacto' : amountPartial ? 'Monto parcial' : 'Monto',
+      label: amountExact ? 'Exact amount' : amountPartial ? 'Partial amount' : 'Amount',
       weight: amountExact ? 0.3 : amountPartial ? 0.12 : 0,
       matched: amountExact || amountPartial,
-      detail: candidates.length > 0 ? `Pagado ${paidAmount} de ${invoice.amount} ${invoice.currency}` : undefined
+      detail: candidates.length > 0 ? `Paid ${paidAmount} of ${invoice.amount} ${invoice.currency}` : undefined
     },
     {
       key: 'currency',
-      label: 'Moneda coincidente',
+      label: 'Matching currency',
       weight: 0.1,
       matched: currencyMatch,
-      detail: candidates.length > 0 && !currencyMatch ? 'Moneda distinta a la factura' : undefined
+      detail: candidates.length > 0 && !currencyMatch ? 'Currency differs from invoice' : undefined
     },
     {
       key: 'vendor',
-      label: 'Proveedor similar',
+      label: 'Similar vendor',
       weight: 0.15,
       matched: bestVendorSimilarity >= 0.5,
-      detail: bestVendorSimilarity > 0 ? `Similitud ${(bestVendorSimilarity * 100).toFixed(0)}%` : undefined
+      detail: bestVendorSimilarity > 0 ? `${(bestVendorSimilarity * 100).toFixed(0)}% similarity` : undefined
     }
   ]
 
@@ -136,35 +136,35 @@ export function reconcileInvoice(
 
   if (candidates.length === 0) {
     status = 'Unmatched'
-    suggestedAction = 'Buscar un pago asociado o registrar el motivo de la diferencia.'
+    suggestedAction = 'Find an associated payment or record the reason for the difference.'
   } else if (candidates.length > 0 && !currencyMatch) {
     status = 'Suspicious'
-    suggestedAction = 'Revisar manualmente: la moneda del pago no coincide con la factura.'
+    suggestedAction = 'Review manually: payment currency does not match the invoice.'
   } else if (duplicateSuspected) {
     status = 'Suspicious'
-    suggestedAction = 'Posible pago duplicado. Verificar antes de cerrar.'
+    suggestedAction = 'Possible duplicate payment. Verify before closing.'
   } else if (amountExact && confidence >= 0.9) {
     status = 'Matched'
-    suggestedAction = 'Conciliación lista para aprobar.'
+    suggestedAction = 'Reconciliation ready for approval.'
   } else if (amountPartial) {
     status = 'Partial Match'
-    suggestedAction = `Pago parcial. Saldo pendiente: ${remainingBalance} ${invoice.currency}.`
+    suggestedAction = `Partial payment. Remaining balance: ${remainingBalance} ${invoice.currency}.`
   } else {
     status = 'Needs Review'
-    suggestedAction = 'Confirmar manualmente la coincidencia sugerida.'
+    suggestedAction = 'Manually confirm the suggested match.'
   }
 
   const explanationParts: string[] = []
-  if (hasReference) explanationParts.push('referencia coincidente')
-  if (amountExact) explanationParts.push('mismo monto')
-  else if (amountPartial) explanationParts.push('monto parcial')
-  if (bestVendorSimilarity >= 0.5) explanationParts.push('proveedor similar')
-  if (!currencyMatch && candidates.length > 0) explanationParts.push('moneda distinta')
-  if (relatedNotes.length > 0) explanationParts.push('notas operativas relacionadas')
+  if (hasReference) explanationParts.push('matching reference')
+  if (amountExact) explanationParts.push('same amount')
+  else if (amountPartial) explanationParts.push('partial amount')
+  if (bestVendorSimilarity >= 0.5) explanationParts.push('similar vendor')
+  if (!currencyMatch && candidates.length > 0) explanationParts.push('different currency')
+  if (relatedNotes.length > 0) explanationParts.push('related operational notes')
 
   const explanation = candidates.length === 0
-    ? 'No se encontró evidencia de pago para esta factura.'
-    : `Se determinó por: ${explanationParts.join(', ')}.`
+    ? 'No payment evidence was found for this invoice.'
+    : `Determined by: ${explanationParts.join(', ')}.`
 
   return {
     invoiceId: invoice.id,

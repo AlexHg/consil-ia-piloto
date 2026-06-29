@@ -7,16 +7,16 @@ useHead({
     { rel: 'icon', href: '/favicon.ico' }
   ],
   htmlAttrs: {
-    lang: 'es'
+    lang: 'en'
   }
 })
 
-const title = 'Asistente de Conciliación con IA'
-const description = 'Mission Control para la conciliación financiera impulsada por IA. La IA enriquece; el motor de conciliación es determinístico y auditable.'
+const title = 'AI Reconciliation Assistant'
+const description = 'Mission Control for AI-powered financial reconciliation. AI enriches; the reconciliation engine is deterministic and auditable.'
 
 useSeoMeta({
   title,
-  titleTemplate: (chunk?: string) => (chunk && chunk !== title ? `${chunk} · Conciliación IA` : title),
+  titleTemplate: (chunk?: string) => (chunk && chunk !== title ? `${chunk} · AI Reconciliation` : title),
   description,
   ogTitle: title,
   ogDescription: description,

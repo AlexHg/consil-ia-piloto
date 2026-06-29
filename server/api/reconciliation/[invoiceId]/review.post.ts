@@ -21,7 +21,7 @@ export default defineEventHandler(async (event): Promise<ReconciliationReviewRes
   const invoiceId = getRouterParam(event, 'invoiceId')
 
   if (!invoiceId) {
-    throw createError({ statusCode: 400, statusMessage: 'Falta el identificador de la factura.' })
+    throw createError({ statusCode: 400, statusMessage: 'Invoice identifier is required.' })
   }
 
   const body = await readBody<Partial<ReconciliationReviewInput>>(event)
@@ -29,14 +29,14 @@ export default defineEventHandler(async (event): Promise<ReconciliationReviewRes
   if (!body?.action || !VALID_ACTIONS.includes(body.action)) {
     throw createError({
       statusCode: 422,
-      statusMessage: 'La acción debe ser "accept" o "correct".'
+      statusMessage: 'Action must be "accept" or "correct".'
     })
   }
 
   if (body.action === 'correct' && (!body.comment || !body.comment.trim())) {
     throw createError({
       statusCode: 422,
-      statusMessage: 'Una corrección requiere un comentario que la justifique.'
+      statusMessage: 'A correction requires a comment explaining the reason.'
     })
   }
 

@@ -39,7 +39,7 @@ defineProps<{
     <div class="mt-auto flex items-center justify-between text-xs text-muted">
       <span class="inline-flex items-center gap-1.5">
         <UIcon name="i-lucide-calendar" class="size-3.5" />
-        Vence {{ formatDate(invoice.dueDate) }}
+        Due {{ formatDate(invoice.dueDate) }}
       </span>
       <span v-if="invoice.poNumber" class="inline-flex items-center gap-1.5">
         <UIcon name="i-lucide-hash" class="size-3.5" />

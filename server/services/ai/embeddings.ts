@@ -11,30 +11,30 @@ import type { Invoice, OperationalNote, Payment } from '~~/shared/types/domain'
 /** Texto canónico de una factura para generar su embedding. */
 export function buildInvoiceText(invoice: Invoice): string {
   return [
-    `Factura ${invoice.id}`,
-    `Proveedor: ${invoice.vendor}`,
-    invoice.poNumber ? `Orden de compra: ${invoice.poNumber}` : '',
-    `Monto: ${invoice.amount} ${invoice.currency}`,
-    `Emitida: ${invoice.invoiceDate}`,
-    `Vence: ${invoice.dueDate}`,
-    `Estado: ${invoice.status}`
+    `Invoice ${invoice.id}`,
+    `Vendor: ${invoice.vendor}`,
+    invoice.poNumber ? `Purchase order: ${invoice.poNumber}` : '',
+    `Amount: ${invoice.amount} ${invoice.currency}`,
+    `Issued: ${invoice.invoiceDate}`,
+    `Due: ${invoice.dueDate}`,
+    `Status: ${invoice.status}`
   ].filter(Boolean).join('. ')
 }
 
 /** Texto canónico de un pago para generar su embedding. */
 export function buildPaymentText(payment: Payment): string {
   return [
-    `Pago ${payment.id}`,
-    `Pagador: ${payment.payerName}`,
-    payment.reference ? `Referencia: ${payment.reference}` : '',
-    `Monto: ${payment.amount} ${payment.currency}`,
-    `Fecha: ${payment.paymentDate}`
+    `Payment ${payment.id}`,
+    `Payer: ${payment.payerName}`,
+    payment.reference ? `Reference: ${payment.reference}` : '',
+    `Amount: ${payment.amount} ${payment.currency}`,
+    `Date: ${payment.paymentDate}`
   ].filter(Boolean).join('. ')
 }
 
 /** Texto canónico de una nota operativa para generar su embedding. */
 export function buildNoteText(note: OperationalNote): string {
-  return [`Nota (${note.source})`, note.text].filter(Boolean).join(': ')
+  return [`Note (${note.source})`, note.text].filter(Boolean).join(': ')
 }
 
 /**

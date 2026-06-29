@@ -9,13 +9,13 @@ export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
 
   if (!id) {
-    throw createError({ statusCode: 400, statusMessage: 'Falta el identificador de la factura.' })
+    throw createError({ statusCode: 400, statusMessage: 'Invoice identifier is required.' })
   }
 
   const deleted = await removeInvoice(id)
 
   if (!deleted) {
-    throw createError({ statusCode: 404, statusMessage: `No se encontró la factura ${id}.` })
+    throw createError({ statusCode: 404, statusMessage: `Invoice ${id} was not found.` })
   }
 
   return { id, deleted: true }

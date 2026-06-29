@@ -47,9 +47,9 @@ export async function interpretNote(note: OperationalNote): Promise<NoteInterpre
   try {
     const raw = await ai.complete(note.text, {
       system:
-        'Eres un asistente de conciliación financiera. Resume la nota operativa en una frase '
-        + 'y lista los identificadores que menciona (facturas INV-, pagos PAY-, órdenes PO-). '
-        + 'Responde SOLO con JSON: {"summary": string, "referencedIds": string[]}.',
+        'You are a financial reconciliation assistant. Summarize the operational note in one sentence '
+        + 'and list the identifiers it mentions (invoices INV-, payments PAY-, orders PO-). '
+        + 'Respond ONLY with JSON: {"summary": string, "referencedIds": string[]}.',
       maxTokens: 200
     })
 
@@ -66,7 +66,7 @@ export async function interpretNote(note: OperationalNote): Promise<NoteInterpre
       referencedIds: Array.from(new Set([...baseIds, ...aiIds]))
     }
   } catch (error) {
-    console.error('[ai] interpretNote degradó a fallback determinístico', error)
+    console.error('[ai] interpretNote fell back to deterministic output', error)
     return { summary: note.text.trim(), referencedIds: baseIds }
   }
 }
@@ -89,14 +89,14 @@ export async function enrichExplanation(
     const context = buildExplanationContext(result, invoice, payments, notes)
     const text = await ai.complete(context, {
       system:
-        'Eres un analista de conciliación. Explica de forma clara y breve (2-3 frases) por qué '
-        + 'la factura recibió este estado, basándote EXCLUSIVAMENTE en la evidencia y la decisión '
-        + 'ya tomada. No inventes datos ni cambies la decisión. Escribe en español.',
+        'You are a reconciliation analyst. Explain clearly and briefly (2-3 sentences) why '
+        + 'the invoice received this status, based EXCLUSIVELY on the evidence and the decision '
+        + 'already made. Do not invent data or change the decision. Write in English.',
       maxTokens: 220
     })
     return text.trim() || result.explanation
   } catch (error) {
-    console.error('[ai] enrichExplanation degradó a la plantilla determinística', error)
+    console.error('[ai] enrichExplanation fell back to deterministic template', error)
     return result.explanation
   }
 }
@@ -109,26 +109,26 @@ function buildExplanationContext(
   notes: OperationalNote[]
 ): string {
   const signals = result.signals
-    .map(signal => `- ${signal.label}: ${signal.matched ? 'coincide' : 'no coincide'}${signal.detail ? ` (${signal.detail})` : ''}`)
+    .map(signal => `- ${signal.label}: ${signal.matched ? 'match' : 'no match'}${signal.detail ? ` (${signal.detail})` : ''}`)
     .join('\n')
 
   const matchedPayments = payments
     .filter(payment => result.matchedPaymentIds.includes(payment.id))
-    .map(payment => `${payment.id} · ${payment.amount} ${payment.currency} · ref ${payment.reference ?? 'sin referencia'}`)
-    .join('; ') || 'ninguno'
+    .map(payment => `${payment.id} · ${payment.amount} ${payment.currency} · ref ${payment.reference ?? 'no reference'}`)
+    .join('; ') || 'none'
 
   const relatedNotes = notes.length > 0
     ? notes.map(note => `(${note.source}) ${note.text}`).join(' | ')
-    : 'ninguna'
+    : 'none'
 
   return [
-    `Factura: ${invoice.id} — ${invoice.vendor} — ${invoice.amount} ${invoice.currency}`,
-    `Estado decidido: ${result.status} (confianza ${(result.confidence * 100).toFixed(0)}%)`,
-    `Saldo pendiente: ${result.remainingBalance ?? 'n/a'}`,
-    `Acción sugerida: ${result.suggestedAction}`,
-    `Pagos vinculados: ${matchedPayments}`,
-    `Notas relacionadas: ${relatedNotes}`,
-    'Señales de evidencia:',
+    `Invoice: ${invoice.id} — ${invoice.vendor} — ${invoice.amount} ${invoice.currency}`,
+    `Decided status: ${result.status} (confidence ${(result.confidence * 100).toFixed(0)}%)`,
+    `Remaining balance: ${result.remainingBalance ?? 'n/a'}`,
+    `Suggested action: ${result.suggestedAction}`,
+    `Linked payments: ${matchedPayments}`,
+    `Related notes: ${relatedNotes}`,
+    'Evidence signals:',
     signals
   ].join('\n')
 }

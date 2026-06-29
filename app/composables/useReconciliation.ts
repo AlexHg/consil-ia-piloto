@@ -118,8 +118,8 @@ export function useReconciliation() {
     progress.value = {
       phase: 'queueing',
       percent: 8,
-      title: 'Encolando conciliación',
-      message: 'Preparando la corrida del motor determinístico…',
+      title: 'Queueing reconciliation',
+      message: 'Preparing the deterministic engine run…',
       invoicesCount: null
     }
 
@@ -131,8 +131,8 @@ export function useReconciliation() {
       progress.value = {
         phase: 'processing',
         percent: 22,
-        title: 'Procesando facturas',
-        message: 'El motor determinístico está conciliando los pools.',
+        title: 'Processing invoices',
+        message: 'The deterministic engine is reconciling the pools.',
         invoicesCount: before.invoicesCount
       }
 
@@ -144,8 +144,8 @@ export function useReconciliation() {
         progress.value = {
           phase: 'done',
           percent: 100,
-          title: 'Conciliación completada',
-          message: `${count} ${count === 1 ? 'factura procesada' : 'facturas procesadas'}.`,
+          title: 'Reconciliation complete',
+          message: `${count} ${count === 1 ? 'invoice processed' : 'invoices processed'}.`,
           invoicesCount: count
         }
         scheduleDismiss(DISMISS_DONE_MS)
@@ -153,8 +153,8 @@ export function useReconciliation() {
         progress.value = {
           phase: 'done',
           percent: 100,
-          title: 'Conciliación encolada',
-          message: 'El resultado se actualizará en unos instantes.',
+          title: 'Reconciliation queued',
+          message: 'Results will update in a few moments.',
           invoicesCount: null
         }
         scheduleDismiss(DISMISS_DONE_MS)
@@ -163,7 +163,7 @@ export function useReconciliation() {
       progress.value = {
         phase: 'error',
         percent: 100,
-        title: 'No se pudo ejecutar la conciliación',
+        title: 'Could not run reconciliation',
         message: extractErrorMessage(error),
         invoicesCount: null
       }
@@ -191,8 +191,8 @@ export function useReconciliation() {
       await refreshNuxtData(REFRESH_KEYS)
 
       toast.add({
-        title: input.action === 'accept' ? 'Conciliación aceptada' : 'Enviada a revisión',
-        description: `${invoiceId} ahora está en estado "${reconciliationLabel(result.newStatus)}".`,
+        title: input.action === 'accept' ? 'Reconciliation accepted' : 'Sent for review',
+        description: `${invoiceId} is now in "${reconciliationLabel(result.newStatus)}" status.`,
         color: 'success',
         icon: input.action === 'accept' ? 'i-lucide-check' : 'i-lucide-pencil'
       })
@@ -200,7 +200,7 @@ export function useReconciliation() {
       return true
     } catch (error) {
       toast.add({
-        title: 'No se pudo registrar la decisión',
+        title: 'Could not record decision',
         description: extractErrorMessage(error),
         color: 'error',
         icon: 'i-lucide-x'

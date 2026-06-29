@@ -10,13 +10,13 @@ defineProps<{
 const page = defineModel<number>('page', { required: true })
 const pageSize = defineModel<number>('pageSize', { required: true })
 
-const pageSizeItems = PAGE_SIZE_OPTIONS.map(value => ({ label: `${value} por página`, value: value as number }))
+const pageSizeItems = PAGE_SIZE_OPTIONS.map(value => ({ label: `${value} per page`, value: value as number }))
 </script>
 
 <template>
   <div v-if="total > 0" class="flex flex-wrap items-center justify-between gap-3 pt-2">
     <p class="text-xs text-muted tabular-nums">
-      Mostrando {{ rangeStart }}–{{ rangeEnd }} de {{ total }}
+      Showing {{ rangeStart }}–{{ rangeEnd }} of {{ total }}
     </p>
 
     <div class="flex items-center gap-2">

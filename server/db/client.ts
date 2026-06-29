@@ -18,7 +18,7 @@ type GlobalWithDb = typeof globalThis & {
 function create(): Kysely<Database> {
   const connectionString = process.env.DATABASE_URL
   if (!connectionString) {
-    throw new Error('DATABASE_URL no está definida. Revisa tu archivo .env.')
+    throw new Error('DATABASE_URL is not defined. Check your .env file.')
   }
 
   const dialect = new PostgresDialect({

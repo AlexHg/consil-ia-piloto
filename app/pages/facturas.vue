@@ -5,7 +5,7 @@ definePageMeta({
   layout: 'dashboard'
 })
 
-useSeoMeta({ title: 'Facturas' })
+useSeoMeta({ title: 'Invoices' })
 
 const { invoices, pending } = usePools()
 
@@ -30,20 +30,20 @@ const {
 } = usePoolSort(invoices, [
   {
     value: 'status',
-    label: 'Por estado',
+    label: 'By status',
     icon: 'i-lucide-flag',
     compare: (a, b) =>
       reconciliationRank(statusByInvoice.value.get(a.id)) - reconciliationRank(statusByInvoice.value.get(b.id))
   },
   {
     value: 'date',
-    label: 'Por fecha',
+    label: 'By date',
     icon: 'i-lucide-calendar',
     compare: (a, b) => dateValue(a.dueDate) - dateValue(b.dueDate)
   },
   {
     value: 'amount',
-    label: 'Por monto',
+    label: 'By amount',
     icon: 'i-lucide-banknote',
     compare: (a, b) => a.amount - b.amount
   }
@@ -55,7 +55,7 @@ const { page, pageSize, total, rangeStart, rangeEnd, paginated } = usePagination
 <template>
   <UDashboardPanel id="facturas">
     <template #header>
-      <UDashboardNavbar title="Facturas" :ui="{ right: 'gap-2' }">
+      <UDashboardNavbar title="Invoices" :ui="{ right: 'gap-2' }">
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
@@ -70,7 +70,7 @@ const { page, pageSize, total, rangeStart, rangeEnd, paginated } = usePagination
       <div class="flex flex-col gap-6">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <p class="text-sm text-muted">
-            Pool de facturas normalizadas. {{ invoices.length }} documentos.
+            Normalized invoice pool. {{ invoices.length }} documents.
           </p>
           <PoolSortControls
             v-model:sort-key="sortKey"

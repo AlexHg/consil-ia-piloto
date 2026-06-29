@@ -79,7 +79,7 @@ function appendSemanticSignal(
 
   result.signals.push({
     key: 'semantic',
-    label: 'Similitud semántica (pgvector)',
+    label: 'Semantic similarity (pgvector)',
     weight: 0,
     matched: best > 0,
     detail: buildSemanticDetail(hasEmbeddings, best)
@@ -87,7 +87,7 @@ function appendSemanticSignal(
 }
 
 function buildSemanticDetail(hasEmbeddings: boolean, best: number): string {
-  if (!hasEmbeddings) return 'Embeddings no disponibles (recuperación por fallback)'
-  if (best > 0) return `${(best * 100).toFixed(0)}% con el mejor pago vinculado`
-  return 'Sin similitud relevante entre los candidatos'
+  if (!hasEmbeddings) return 'Embeddings unavailable (fallback retrieval)'
+  if (best > 0) return `${(best * 100).toFixed(0)}% with best linked payment`
+  return 'No relevant similarity among candidates'
 }
