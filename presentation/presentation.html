@@ -186,7 +186,7 @@
               >
                 <h3 style="font-size: 19pt">Principios no negociables</h3>
                 <ul style="margin-top: 6px">
-                  <li><strong>La IA enriquece, las reglas deciden.</strong></li>
+                  <li><strong>El LLM enriquece, las reglas deciden.</strong></li>
                   <li>
                     Toda decisión es
                     <strong>explicable y auditable</strong> (señales +
@@ -212,7 +212,7 @@
 
         <section id="tech">
           <p class="eyebrow">03 — 1 minuto</p>
-          <h2>Technology decisions</h2>
+          <h2>Elección de Tecnología</h2>
           <div class="content">
             <div
               style="
@@ -272,7 +272,7 @@
                 </p>
               </div>
               <div class="card">
-                <h3 style="font-size: 16pt">IA opcional</h3>
+                <h3 style="font-size: 16pt">LLM opcional</h3>
                 <p class="text-muted">
                   Sin <span class="mono">OPENAI_API_KEY</span> el sistema corre
                   end-to-end con proveedor mock.
@@ -344,11 +344,11 @@
                 >
                   <div class="stat">
                     <p class="num dark">7</p>
-                    <p class="label">tablas en PostgreSQL</p>
+                    <p class="label">tablas</p>
                   </div>
                   <div class="stat">
                     <p class="num dark">19</p>
-                    <p class="label">endpoints REST</p>
+                    <p class="label">endpoints</p>
                   </div>
                   <div class="stat">
                     <p class="num dark">3</p>
@@ -356,7 +356,7 @@
                   </div>
                   <div class="stat">
                     <p class="num dark">2</p>
-                    <p class="label">workers (cola)</p>
+                    <p class="label">workers</p>
                   </div>
                 </div>
               </div>
@@ -370,7 +370,7 @@
         </section>
 
         <section id="ia">
-          <p class="eyebrow">05 — La IA enriquece, no decide</p>
+          <p class="eyebrow">05 — El LLM enriquece, no decide</p>
           <h2>Arquitectura de IA</h2>
           <div class="content">
             <div
@@ -428,9 +428,10 @@
                   display: flex;
                   flex-direction: column;
                   justify-content: center;
+                 
                 "
               >
-                <p>
+                <p style="margin-right: 25px;">
                   <i class="fa-solid fa-shield-halved text-brand"></i>
                   &nbsp;<strong
                     >Toda llamada a la IA tiene fallback determinístico.</strong
@@ -466,7 +467,7 @@
 
         <section id="motor">
           <p class="eyebrow">06 — 100% determinístico</p>
-          <h2>Motor de conciliación</h2>
+          <h2>Motor de <span class="mono text-brand">concil.ia</span>ción</h2>
           <div class="content">
             <div
               style="display: grid; grid-template-columns: 1fr 1fr; gap: 26px"
@@ -711,6 +712,323 @@
           </p>
         </section>
 
+        <section id="kanban-demo">
+          <style>
+            #kanban-demo .kb-stage {
+              position: relative;
+              width: 100%;
+              height: 462px;
+              margin-top: -10px;
+              margin-bottom: 20px;
+            }
+            #kanban-demo .kb-col-head {
+              position: absolute;
+              top: 0;
+              width: 332px;
+              box-sizing: border-box;
+              font-size: 12pt !important;
+              font-weight: 700;
+              color: var(--muted-color) !important;
+              text-transform: uppercase;
+              letter-spacing: 0.08em;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              margin: 0;
+            }
+            #kanban-demo .kb-col-head i { color: var(--brand-400); }
+            #kanban-demo .kb-col-head span {
+              margin-left: auto;
+              background: #fff;
+              border: 1px solid var(--line-color);
+              border-radius: 999px;
+              padding: 1px 9px;
+              font-size: 10.5pt;
+              color: var(--brand-600);
+            }
+            #kanban-demo .kb-card {
+              position: absolute;
+              width: 332px;
+              height: 132px;
+              box-sizing: border-box;
+              background: #fff;
+              border: 1px solid var(--line-color);
+              border-radius: 14px;
+              box-shadow: var(--card-shadow);
+              padding: 12px 16px;
+              z-index: 2;
+            }
+            #kanban-demo .kb-head {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+            }
+            #kanban-demo .kb-id {
+              font-family: var(--mono-font);
+              font-weight: 600;
+              font-size: 13pt;
+              color: var(--text-color);
+            }
+            #kanban-demo .kb-head i { color: var(--brand-400); font-size: 14pt; }
+            #kanban-demo .kb-meta {
+              font-size: 11.5pt !important;
+              color: var(--muted-color) !important;
+              margin: 4px 0 0 0 !important;
+              line-height: 1.35;
+            }
+            #kanban-demo .kb-amt {
+              font-size: 15pt !important;
+              font-weight: 700;
+              margin: 2px 0 0 0 !important;
+              color: var(--text-color);
+            }
+            #kanban-demo .kb-amt span {
+              font-size: 10.5pt;
+              color: var(--muted-color);
+              font-weight: 600;
+            }
+            #kanban-demo .kb-status { position: relative; height: 22px; margin-top: 10px; }
+            #kanban-demo .kb-badge {
+              position: absolute;
+              left: 0; top: 0;
+              display: inline-flex;
+              align-items: center;
+              gap: 6px;
+              font-size: 11pt;
+              font-weight: 600;
+              padding: 4px 11px;
+              border-radius: 999px;
+              line-height: 1;
+              white-space: nowrap;
+              opacity: 0;
+              transform-origin: left center;
+            }
+            #kanban-demo .kb-badge::before {
+              content: '';
+              width: 7px; height: 7px;
+              border-radius: 50%;
+              background: currentColor;
+            }
+            #kanban-demo .kb-q { background: #F1F5F9; color: #64748B; }
+            #kanban-demo .kb-p { background: var(--brand-50); color: var(--brand-600); }
+            #kanban-demo .kb-f.matched { background: #ECFDF5; color: #047857; }
+            #kanban-demo .kb-f.partial { background: #E0F2FE; color: #0369A1; }
+            #kanban-demo .kb-f.review  { background: #FFFBEB; color: #B45309; }
+
+            #kanban-demo .kb-wire { position: absolute; height: 3px; z-index: 1; }
+            #kanban-demo .kb-wire.w1 { color: #10B981; }
+            #kanban-demo .kb-wire.w2 { color: #0EA5E9; }
+            #kanban-demo .kb-wire.w3 { color: #F59E0B; }
+            #kanban-demo .kb-line {
+              position: absolute;
+              inset: 0;
+              border-top: 3px dashed currentColor;
+              transform: scaleX(0);
+              transform-origin: left center;
+              opacity: 0;
+            }
+            #kanban-demo .kb-flow {
+              position: absolute;
+              top: -5px; left: 0;
+              width: 12px; height: 12px;
+              border-radius: 50%;
+              background: currentColor;
+              box-shadow: 0 0 12px currentColor;
+              opacity: 0;
+            }
+
+            /* --- Animaciones (solo cuando la slide está activa) --- */
+            #kanban-demo.present .kb-card { animation: kbCard 9s ease-in-out infinite; }
+            #kanban-demo.present .kb-q    { animation: kbQueued 9s ease-in-out infinite; }
+            #kanban-demo.present .kb-p    { animation: kbProc 9s ease-in-out infinite; }
+            #kanban-demo.present .kb-f    { animation: kbFinal 9s ease-in-out infinite; }
+            #kanban-demo.present .kb-line { animation: kbWire 9s ease-in-out infinite; }
+            #kanban-demo.present .kb-flow { animation: kbPulse 9s ease-in-out infinite; }
+
+            /* Cascada por fila */
+            #kanban-demo.present [data-row="2"],
+            #kanban-demo.present [data-row="2"] * { animation-delay: .55s; }
+            #kanban-demo.present [data-row="3"],
+            #kanban-demo.present [data-row="3"] * { animation-delay: 1.1s; }
+
+            @keyframes kbCard {
+              0%, 8%   { border-color: var(--line-color); box-shadow: var(--card-shadow); }
+              16%, 44% { border-color: var(--brand-300); box-shadow: 0 0 0 3px var(--brand-50); }
+              57%, 90% { border-color: var(--hl); box-shadow: 0 0 0 3px color-mix(in srgb, var(--hl) 20%, transparent); }
+              97%, 100%{ border-color: var(--line-color); box-shadow: var(--card-shadow); }
+            }
+            @keyframes kbQueued {
+              0%, 1%   { opacity: 0; }
+              3%, 9%   { opacity: 1; }
+              13%, 100%{ opacity: 0; }
+            }
+            @keyframes kbProc {
+              0%, 12%  { opacity: 0; }
+              16%, 44% { opacity: 1; }
+              50%, 100%{ opacity: 0; }
+            }
+            @keyframes kbFinal {
+              0%, 50%  { opacity: 0; transform: scale(.85); }
+              57%      { opacity: 1; transform: scale(1.08); }
+              63%, 90% { opacity: 1; transform: scale(1); }
+              97%, 100%{ opacity: 0; transform: scale(.85); }
+            }
+            @keyframes kbWire {
+              0%, 32%  { transform: scaleX(0); opacity: 0; }
+              34%      { opacity: 1; }
+              48%, 90% { transform: scaleX(1); opacity: 1; }
+              96%, 100%{ transform: scaleX(0); opacity: 0; }
+            }
+            @keyframes kbPulse {
+              0%, 48%  { opacity: 0; left: 0; }
+              50%      { opacity: 1; }
+              78%      { opacity: 1; left: calc(100% - 12px); }
+              82%, 100%{ opacity: 0; left: calc(100% - 12px); }
+            }
+          </style>
+
+          <p class="eyebrow">07 — Demo · Conciliación en vivo</p>
+          <h2>Cómo se ve el flujo</h2>
+          <div class="content">
+            <div class="kb-stage mb-4">
+              <!-- Encabezados de columna (estilo Kanban) -->
+              <p class="kb-col-head" style="left: 0;">
+                <i class="fa-solid fa-file-invoice"></i> Facturas <span>3</span>
+              </p>
+              <p class="kb-col-head" style="left: 410px;">
+                <i class="fa-solid fa-money-bill-wave"></i> Pagos <span>2</span>
+              </p>
+              <p class="kb-col-head" style="left: 820px;">
+                <i class="fa-solid fa-comment-dots"></i> Notas <span>1</span>
+              </p>
+
+              <!-- Conexiones animadas -->
+              <div class="kb-wire w1" data-row="1" style="top: 112px; left: 332px; width: 78px;">
+                <span class="kb-line"></span><span class="kb-flow"></span>
+              </div>
+              <div class="kb-wire w2" data-row="2" style="top: 254px; left: 332px; width: 78px;">
+                <span class="kb-line"></span><span class="kb-flow"></span>
+              </div>
+              <div class="kb-wire w3" data-row="3" style="top: 396px; left: 332px; width: 488px;">
+                <span class="kb-line"></span><span class="kb-flow"></span>
+              </div>
+
+              <!-- Columna 1: Facturas -->
+              <div class="kb-card" data-row="1" style="--hl: #10B981; top: 46px; left: 0;">
+                <div class="kb-head">
+                  <span class="kb-id">INV-1001</span>
+                  <i class="fa-solid fa-file-invoice"></i>
+                </div>
+                <p class="kb-meta">ACME Corp</p>
+                <p class="kb-amt">4,300 <span>USD</span></p>
+                <div class="kb-status">
+                  <span class="kb-badge kb-q">En cola</span>
+                  <span class="kb-badge kb-p">Procesando…</span>
+                  <span class="kb-badge kb-f matched">Matched</span>
+                </div>
+              </div>
+              <div class="kb-card" data-row="2" style="--hl: #0EA5E9; top: 188px; left: 0;">
+                <div class="kb-head">
+                  <span class="kb-id">INV-1002</span>
+                  <i class="fa-solid fa-file-invoice"></i>
+                </div>
+                <p class="kb-meta">Globex SA</p>
+                <p class="kb-amt">3,000 <span>USD</span></p>
+                <div class="kb-status">
+                  <span class="kb-badge kb-q">En cola</span>
+                  <span class="kb-badge kb-p">Procesando…</span>
+                  <span class="kb-badge kb-f partial">Partial</span>
+                </div>
+              </div>
+              <div class="kb-card" data-row="3" style="--hl: #F59E0B; top: 330px; left: 0;">
+                <div class="kb-head">
+                  <span class="kb-id">INV-1003</span>
+                  <i class="fa-solid fa-file-invoice"></i>
+                </div>
+                <p class="kb-meta">Initech LLC</p>
+                <p class="kb-amt">1,200 <span>USD</span></p>
+                <div class="kb-status">
+                  <span class="kb-badge kb-q">En cola</span>
+                  <span class="kb-badge kb-p">Procesando…</span>
+                  <span class="kb-badge kb-f review">Needs Review</span>
+                </div>
+              </div>
+
+              <!-- Columna 2: Pagos -->
+              <div class="kb-card" data-row="1" style="--hl: #10B981; top: 46px; left: 410px;">
+                <div class="kb-head">
+                  <span class="kb-id">PAY-5001</span>
+                  <i class="fa-solid fa-money-bill-wave"></i>
+                </div>
+                <p class="kb-meta">Ref. INV-1001</p>
+                <p class="kb-amt">4,300 <span>USD</span></p>
+                <div class="kb-status">
+                  <span class="kb-badge kb-q">En cola</span>
+                  <span class="kb-badge kb-p">Procesando…</span>
+                  <span class="kb-badge kb-f matched">Conciliado</span>
+                </div>
+              </div>
+              <div class="kb-card" data-row="2" style="--hl: #0EA5E9; top: 188px; left: 410px;">
+                <div class="kb-head">
+                  <span class="kb-id">PAY-5002</span>
+                  <i class="fa-solid fa-money-bill-wave"></i>
+                </div>
+                <p class="kb-meta">Ref. INV-1002</p>
+                <p class="kb-amt">2,000 <span>USD</span></p>
+                <div class="kb-status">
+                  <span class="kb-badge kb-q">En cola</span>
+                  <span class="kb-badge kb-p">Procesando…</span>
+                  <span class="kb-badge kb-f partial">Parcial</span>
+                </div>
+              </div>
+
+              <!-- Columna 3: Nota -->
+              <div class="kb-card" data-row="3" style="--hl: #F59E0B; top: 330px; left: 820px;">
+                <div class="kb-head">
+                  <span class="kb-id" style="font-family: var(--body-font); font-size: 13pt;">Nota · Slack</span>
+                  <i class="fa-solid fa-comment-dots"></i>
+                </div>
+                <p class="kb-meta">
+                  “Initech: aplicar <strong>descuento por pronto pago</strong> a
+                  <span class="mono">INV-1003</span>.”
+                </p>
+                <div class="kb-status">
+                  <span class="kb-badge kb-q">Leyendo</span>
+                  <span class="kb-badge kb-p">Interpretando…</span>
+                  <span class="kb-badge kb-f review">Vinculada</span>
+                </div>
+              </div>
+            </div>
+            
+            <div
+              style="
+                display: flex;
+                gap: 26px;
+                align-items: center;
+                justify-content: center;
+                padding-top: 38px;
+                flex-wrap: wrap;
+              "
+            >
+              <p class="text-sm text-muted" style="margin: 0"><br/><br/>
+                <i class="fa-solid fa-circle" style="color: #10B981; font-size: 8pt"></i>
+                Monto exacto → <strong>Matched</strong>
+              </p>
+              <p class="text-sm text-muted" style="margin: 0"><br/><br/>
+                <i class="fa-solid fa-circle" style="color: #0EA5E9; font-size: 8pt"></i>
+                Pago parcial → <strong>Partial</strong>
+              </p>
+              <p class="text-sm text-muted" style="margin: 0"><br/><br/>
+                <i class="fa-solid fa-circle" style="color: #F59E0B; font-size: 8pt"></i>
+                Nota referencia factura → <strong>Needs Review</strong>
+              </p>
+              <p class="text-sm text-muted" style="margin: 0"><br/><br/>
+                <i class="fa-solid fa-arrows-rotate text-brand"></i> Se reproduce en bucle
+              </p>
+            </div>
+          </div>
+        </section>
+
         <section id="casos">
           <p class="eyebrow">08 — Casos borde cubiertos</p>
           <h2>Casos de uso</h2>
@@ -875,7 +1193,7 @@
                   </p>
                   <span class="badge review">70%</span>
                 </div>
-                <p class="eyebrow" style="margin: 0">Sábado · IA & Pruebas</p>
+                <p class="eyebrow" style="margin: 0">Sábado · LLM, vectores & pruebas</p>
                 <div class="layer">
                   <span class="ltag" style="min-width: 58px">1:00</span>
                   <p style="flex: 1">
@@ -894,11 +1212,11 @@
               </div>
               <div style="display: flex; flex-direction: column; gap: 11px">
                 <p class="eyebrow" style="margin: 0">Domingo · entrega</p>
-                <div class="layer alt">
-                  <span class="ltag" style="min-width: 58px">0:05</span>
+                <div class="layer">
+                  <span class="ltag" style="min-width: 58px">0:15</span>
                   <p style="flex: 1">
                     <strong>Detalles</strong> ·
-                    <span class="text-muted">últimos ajustes finos</span>
+                    <span class="text-muted">últimos ajustes</span>
                   </p>
                   <span class="badge matched">100%</span>
                 </div>
@@ -910,7 +1228,7 @@
                   </p>
                 </div>
                 <div class="layer alt">
-                  <span class="ltag" style="min-width: 58px">0:40</span>
+                  <span class="ltag" style="min-width: 58px">extra</span>
                   <p style="flex: 1">
                     <strong>Presentación</strong> ·
                     <span class="text-muted">plasmar ideas</span>
@@ -918,11 +1236,56 @@
                 </div>
               </div>
             </div>
+            <div
+              style="
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: center;
+                gap: 10px 22px;
+                margin-top: 22px;
+                padding-top: 16px;
+                border-top: 1px solid var(--line-color);
+              "
+            >
+              <span style="display: inline-flex; align-items: center; gap: 9px">
+                <span
+                  style="
+                    width: 26px;
+                    height: 16px;
+                    border-radius: 5px;
+                    background: var(--card-bg);
+                    border: 1px solid var(--line-color);
+                    border-left: 4px solid var(--brand-500);
+                  "
+                ></span>
+                <span class="text-sm"
+                  ><strong>Construcción</strong> ·
+                  <span class="text-muted">núcleo técnico</span></span
+                >
+              </span>
+              <span style="display: inline-flex; align-items: center; gap: 9px">
+                <span
+                  style="
+                    width: 26px;
+                    height: 16px;
+                    border-radius: 5px;
+                    background: var(--card-bg);
+                    border: 1px solid var(--line-color);
+                    border-left: 4px solid var(--secondary-color);
+                  "
+                ></span>
+                <span class="text-sm"
+                  ><strong>Revisión</strong> ·
+                  <span class="text-muted">Q&amp;A, cierre y entrega</span></span
+                >
+              </span>
+            </div>
           </div>
           <p class="footnote">
             <i class="fa-solid fa-clock text-brand"></i>&nbsp; El proyecto se
-            elaboró en <strong>6 horas</strong> a lo largo del fin de semana;
-            el tiempo se midió con el método <strong>Pomodoro</strong>.
+            elaboró en <strong>5:30 horas</strong> a lo largo del fin de semana;
+            el tiempo se midió con el método <strong>Pomodoro</strong>. La presentación no se cronometró.
           </p>
         </section>
 
@@ -965,8 +1328,8 @@
                   <span class="mono">.cursor/skills/</span>
                 </h3>
                 <p class="text-sm text-muted" style="margin: 0">
-                  Misma visión, operativa: el agente sigue estas reglas al
-                  implementar.
+                  La misma visión, vuelta reglas operativas que el agente sigue
+                  al implementar.
                 </p>
               </div>
               <div class="card accent">
